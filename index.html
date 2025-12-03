@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SR Finance — Loan Registration</title>
+  <meta name="description" content="SR Finance loan registration system - Dark mode layout" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    :root{
+      --bg:#071017;
+      --surface:#0d1a24;
+      --surface-elevated:#112230;
+      --text:#e6f0f6;
+      --muted:#7a8a99;
+      --accent-blue:#0b5ed7; /* changed to dark blue */
+      --accent-green:#27c48c;
+      --danger:#ff6b6b;
+      --border:rgba(255,255,255,0.04);
+      --radius:14px;
+      --card-shadow:0 8px 32px rgba(0,0,0,0.5);
+      --glass:rgba(255,255,255,0.02);
+      --gradient-surface:linear-gradient(180deg,var(--surface),#071422);
+      --gradient-header:linear-gradient(90deg,rgba(3,8,12,0.97),rgba(7,18,24,0.97));
+    }
+    html,body{height:100%}
+    body{
+      background:linear-gradient(180deg,var(--bg),#021018 160%);
+      color:var(--text);
+      font-family:'Inter',ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      min-height:100vh;
+      line-height:1.5;
+      padding-bottom:48px;
+    }
+
+    /* Header */
+    header{
+      position:sticky;top:0;z-index:80;
+      background:var(--gradient-header);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(12px);
+      padding:14px 16px;
+      box-shadow:0 6px 24px rgba(3,8,12,0.6);
+    }
+    .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:48px;height:48px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue));
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;color:var(--text);font-size:18px;
+      box-shadow:0 8px 20px rgba(11,94,215,0.15);
+    }
+    .brand h1{font-size:18px;margin:0;font-weight:700}
+    .brand p{margin:0;color:var(--muted);font-size:13px}
+    .header-right{display:flex;gap:10px;align-items:center}
+    .status{color:var(--accent-green);font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px}
+    .status::before{content:'';width:8px;height:8px;background:var(--accent-green);border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+    /* Page */
+    .page{max-width:1100px;margin:18px auto;padding:0 16px}
+    .intro{margin-bottom:22px}
+    .intro h2{font-size:26px;color:var(--text);margin-bottom:6px;font-weight:700}
+    .intro p{color:var(--muted);font-size:14px}
+
+    /* Cards */
+    .card{
+      background:var(--gradient-surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--card-shadow);
+      overflow:hidden;
+      margin-bottom:16px;
+    }
+    .card-header{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .card-title{font-weight:700;color:var(--accent-blue);font-size:14px;text-transform:uppercase;letter-spacing:0.5px}
+    .card-content{padding:16px}
+
+    /* Grid */
+    .grid{display:grid;gap:14px}
+    .grid-2{grid-template-columns:repeat(2,1fr)}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    @media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+    /* Form Elements */
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
+    input[type="text"],input[type="tel"],input[type="number"],input[type="date"],select, input[list]{
+      width:100%;padding:12px 14px;border-radius:12px;
+      background:var(--glass);border:1px solid rgba(255,255,255,0.05);
+      color:var(--text);font-size:14px;font-family:inherit;
+      transition:all 0.2s ease;
+    }
+    input::placeholder{color:rgba(230,240,246,0.25)}
+    input:focus,select:focus{outline:none;border-color:rgba(11,94,215,0.3);box-shadow:0 0 0 3px rgba(11,94,215,0.08)}
+    select option{background:var(--surface);color:var(--text)}
+
+    /* Buttons */
+    .btn{
+      border:none;cursor:pointer;font-weight:700;border-radius:10px;padding:10px 16px;
+      font-family:inherit;font-size:14px;transition:all 0.2s ease;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue));
+      color:white;box-shadow:0 8px 24px rgba(11,94,215,0.2);
+    }
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(11,94,215,0.25)}
+    .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .btn-ghost:hover{background:rgba(255,255,255,0.03)}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);padding:10px 14px}
+    .btn-outline:hover{border-color:rgba(11,94,215,0.3);background:rgba(11,94,215,0.05)}
+    .btn-outline.active{
+      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue));
+      color:white;border-color:transparent;
+      box-shadow:0 6px 20px rgba(11,94,215,0.2);
+    }
+    .btn-full{width:100%;padding:14px;font-size:15px}
+    .btn-sm{padding:8px 12px;font-size:13px}
+
+    /* Amount Buttons */
+    .btn-group{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+
+    /* Summary Box */
+    .summary-box{
+      padding:14px;border-radius:12px;margin-top:12px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .summary-box.border-accent{border-left:4px solid rgba(11,94,215,0.3)}
+    .summary-box.border-success{border-left:4px solid rgba(39,196,140,0.3)}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+    .summary-row+.summary-row{border-top:1px solid rgba(255,255,255,0.03)}
+
+    /* Text Utilities */
+    .text-muted{color:var(--muted)}
+    .text-accent{color:var(--accent-blue)}
+    .text-success{color:var(--accent-green)}
+    .text-danger{color:var(--danger)}
+    .text-lg{font-size:18px}
+    .text-sm{font-size:13px}
+    .font-bold{font-weight:700}
+    .font-extrabold{font-weight:800}
+
+    /* Radio Group */
+    .radio-group{display:flex;gap:16px;flex-wrap:wrap}
+    .radio-label{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:600;cursor:pointer}
+    .radio-label input{accent-color:var(--accent-blue);width:16px;height:16px}
+
+    /* Modal */
+    .modal{
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
+      z-index:200;align-items:center;justify-content:center;padding:20px;
+    }
+    .modal.show{display:flex}
+    .modal-content{
+      width:100%;max-width:480px;
+      background:var(--gradient-surface);
+      border-radius:16px;padding:20px;
+      border:1px solid var(--border);
+      box-shadow:0 20px 60px rgba(0,0,0,0.5);
+      animation:modalIn 0.2s ease;
+    }
+    @keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+    .modal-header{font-weight:800;color:var(--text);margin-bottom:16px;font-size:18px}
+    .modal-input{
+      width:100%;padding:12px 14px;border-radius:12px;
+      background:var(--glass);border:1px solid rgba(255,255,255,0.05);
+      color:var(--text);font-size:14px;font-family:inherit;margin-bottom:12px;
+    }
+    .modal-input:focus{outline:none;border-color:rgba(11,94,215,0.3)}
+    .modal-actions{display:flex;gap:10px;margin-top:16px}
+
+    /* Prefix List */
+    .prefix-list{display:flex;flex-direction:column;gap:8px;max-height:250px;overflow-y:auto;margin-bottom:12px}
+    .prefix-item{
+      display:flex;gap:8px;align-items:center;padding:10px 12px;
+      border-radius:12px;background:rgba(255,255,255,0.02);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .prefix-item input{
+      flex:1;background:transparent;border:none;color:var(--text);
+      font-weight:700;font-size:14px;padding:4px;
+    }
+    .prefix-item input:focus{outline:none}
+    .prefix-del{
+      width:36px;height:36px;border-radius:8px;border:none;cursor:pointer;
+      background:rgba(255,107,107,0.1);color:var(--danger);font-size:16px;
+      display:flex;align-items:center;justify-content:center;
+      transition:background 0.2s;
+    }
+    .prefix-del:hover{background:rgba(255,107,107,0.2)}
+
+    /* Preview Section */
+    #preview-section{display:none}
+    #preview-section.show{display:block;animation:fadeIn 0.3s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Hide form when preview is shown */
+    #form-section.hidden{display:none}
+
+    /* Responsive */
+    @media(max-width:520px){
+      .card-header{padding:12px}
+      .card-content{padding:14px}
+      .brand h1{font-size:16px}
+      .logo{width:42px;height:42px;font-size:16px}
+      .intro h2{font-size:22px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo">SF</div>
+        <div>
+          <h1>SR Finance</h1>
+          <p>Loan Registration System</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status">Ready</div>
+        <button class="btn btn-ghost" onclick="handleNewLoan()">+ New Loan</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- Form Section -->
+    <section id="form-section">
+      <div class="intro">
+        <h2>Register a Loan</h2>
+        <p>Complete, responsive and production-ready loan registration system (dark-blue theme).</p>
+      </div>
+
+      <form id="loanForm" autocomplete="off">
+        <!-- Customer Information -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Customer Information</div></div>
+          <div class="card-content">
+            <div class="grid grid-2">
+              <div>
+                <label>Customer ID Prefix</label>
+                <div style="display:flex;gap:8px">
+                  <select id="prefixSelect" style="flex:1"></select>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="openPrefixModal()">Manage</button>
+                </div>
+                <p class="text-muted text-sm" style="margin-top:8px" id="fullIdPreview">Full ID: CUS-2025001</p>
+              </div>
+
+              <div>
+                <label>Date</label>
+                <div>
+                  <!-- Visible formatted representation that opens native calendar: -->
+                  <input type="text" id="dateDisplay" readonly style="width:100%;padding:12px 14px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,0.05);color:var(--text);font-weight:700;cursor:pointer" />
+                  <!-- Native date input (offscreen) -->
+                  <input type="date" id="date" style="position: absolute; left: -9999px;" />
+                </div>
+                <p class="text-muted text-sm" style="margin-top:6px">Click the date to open calendar. Defaults to today.</p>
+              </div>
+
+              <div>
+                <label>Name *</label>
+                <input type="text" id="name" placeholder="Enter full name" required />
+              </div>
+
+              <div>
+                <label>Parent Name *</label>
+                <input type="text" id="parentName" placeholder="Parent name" required />
+              </div>
+
+              <div>
+                <label>Phone *</label>
+                <input type="tel" id="phone" placeholder="Phone number" required />
+              </div>
+
+              <div>
+                <label>Aadhar *</label>
+                <input type="text" id="aadhar" placeholder="Aadhar number" required />
+              </div>
+
+              <div>
+                <label>Address</label>
+                <input type="text" id="address" placeholder="Street, area, etc." />
+              </div>
+
+              <div>
+                <label>State (India)</label>
+                <input list="stateList" id="stateInput" placeholder="Select or type state" />
+                <datalist id="stateList"></datalist>
+              </div>
+
+              <div>
+                <label>City</label>
+                <input list="cityList" id="cityInput" placeholder="Select or type city" />
+                <datalist id="cityList"></datalist>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loan Details -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Loan Details</div></div>
+          <div class="card-content">
+            <div>
+              <label>Loan Amount *</label>
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline" data-amount="5000">₹5,000</button>
+                <button type="button" class="btn btn-outline" data-amount="8000">₹8,000</button>
+                <button type="button" class="btn btn-outline" data-amount="10000">₹10,000</button>
+                <button type="button" class="btn btn-outline" data-amount="15000">₹15,000</button>
+                <button type="button" class="btn btn-outline" data-amount="20000">₹20,000</button>
+                <button type="button" class="btn btn-outline" onclick="openCustomLoanModal()">+ Custom</button>
+              </div>
+              <input type="number" id="loanAmountInput" placeholder="Enter loan amount" />
+            </div>
+
+            <div id="loanDetailsExtra" style="display:none">
+              <div class="summary-box" style="margin-top:16px">
+                <div class="summary-row">
+                  <span class="text-muted">Commission (₹100 per ₹5000)</span>
+                  <span class="text-danger font-bold" id="commissionFee">₹0</span>
+                </div>
+                <div class="summary-row">
+                  <span class="text-muted">Customer Receives</span>
+                  <span class="text-success font-bold" id="customerReceives">₹0</span>
+                </div>
+              </div>
+
+              <div style="margin-top:16px">
+                <label>Interest Rate (%)</label>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-outline" data-interest="10">10</button>
+                  <button type="button" class="btn btn-outline" data-interest="15">15</button>
+                  <button type="button" class="btn btn-outline" data-interest="20">20</button>
+                  <button type="button" class="btn btn-outline" data-interest="25">25</button>
+                  <button type="button" class="btn btn-outline" onclick="openCustomInterestModal()">+ Custom</button>
+                </div>
+                <input type="number" id="interestRateInput" step="0.1" placeholder="Interest (%)" />
+                <p class="text-muted text-sm" style="margin-top:8px" id="interestNote"></p>
+              </div>
+
+              <div class="summary-box border-accent" style="margin-top:16px">
+                <div class="summary-row">
+                  <span class="text-muted">Loan Amount</span>
+                  <span class="text-lg font-extrabold" id="summaryLoanAmount">₹0</span>
+                </div>
+                <div class="summary-row">
+                  <span class="text-muted" id="interestLabel">Interest (0%):</span>
+                  <span class="text-lg font-extrabold" id="interestAmount">₹0</span>
+                </div>
+                <div class="summary-row">
+                  <span class="text-muted">Total Payable</span>
+                  <span class="text-lg font-extrabold text-accent" id="totalPayable">₹0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Plan -->
+        <div class="card" id="paymentPlanCard" style="display:none">
+          <div class="card-header"><div class="card-title">Payment Plan</div></div>
+          <div class="card-content">
+            <div style="margin-bottom:16px">
+              <label>Payment Type</label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="paymentType" value="weekly" /> Weekly
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="paymentType" value="monthly" checked /> Monthly
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label>Installment Amount *</label>
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline" data-installment="500">₹500</button>
+                <button type="button" class="btn btn-outline" data-installment="800">₹800</button>
+                <button type="button" class="btn btn-outline" data-installment="1000">₹1,000</button>
+                <button type="button" class="btn btn-outline" onclick="openCustomInstallmentModal()">+ Custom</button>
+              </div>
+            </div>
+
+            <div id="installmentSummary" class="summary-box border-success" style="display:none;margin-top:16px">
+              <div class="summary-row">
+                <span class="text-muted">Installment Amount</span>
+                <span class="font-bold" id="displayInstallmentAmount">₹0</span>
+              </div>
+              <div class="summary-row">
+                <span class="text-muted">Number of Installments</span>
+                <span class="font-bold" id="numberOfInstallments">0</span>
+              </div>
+              <div class="summary-row">
+                <span class="text-muted">Frequency</span>
+                <span class="font-bold" id="displayFrequency">Monthly</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Submit & Generate Preview</button>
+      </form>
+    </section>
+
+    <!-- Preview Section -->
+    <section id="preview-section">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Customer Preview</div></div>
+        <div class="card-content">
+          <div class="grid grid-2">
+            <div>
+              <p class="text-muted text-sm">Customer ID</p>
+              <p class="text-lg font-extrabold text-accent" style="margin-top:6px" id="previewCustomerId"></p>
+            </div>
+
+            <div>
+              <p class="text-muted text-sm">Name</p>
+              <p style="margin-top:6px" id="previewName"></p>
+            </div>
+
+            <div>
+              <p class="text-muted text-sm">Parent Name</p>
+              <p style="margin-top:6px" id="previewParentName"></p>
+            </div>
+
+            <div>
+              <p class="text-muted text-sm">Phone</p>
+              <p style="margin-top:6px" id="previewPhone"></p>
+            </div>
+
+            <div>
+              <p class="text-muted text-sm">Aadhar</p>
+              <p style="margin-top:6px" id="previewAadhar"></p>
+            </div>
+
+            <div>
+              <p class="text-muted text-sm">Address</p>
+              <p style="margin-top:6px" id="previewAddress"></p>
+            </div>
+
+            <div>
+              <p class="text-muted text-sm">State</p>
+              <p style="margin-top:6px" id="previewState"></p>
+            </div>
+
+            <div>
+              <p class="text-muted text-sm">City</p>
+              <p style="margin-top:6px" id="previewCity"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Loan Summary</div></div>
+        <div class="card-content">
+          <div class="grid grid-2">
+            <div>
+              <p class="text-muted text-sm">Loan Amount</p>
+              <p class="text-lg font-extrabold" style="margin-top:8px" id="previewLoanAmount"></p>
+              <p class="text-muted text-sm" style="margin-top:12px">Commission Fee</p>
+              <p class="text-lg font-extrabold text-danger" style="margin-top:8px" id="previewCommissionFee"></p>
+              <p class="text-muted text-sm" style="margin-top:12px">Customer Receives</p>
+              <p class="text-lg font-extrabold text-success" style="margin-top:8px" id="previewCustomerReceives"></p>
+            </div>
+            <div>
+              <p class="text-muted text-sm">Interest Rate</p>
+              <p class="text-lg font-extrabold" style="margin-top:8px" id="previewInterestRate"></p>
+              <p class="text-muted text-sm" style="margin-top:12px">Interest Amount</p>
+              <p class="text-lg font-extrabold" style="margin-top:8px" id="previewInterestAmount"></p>
+              <p class="text-muted text-sm" style="margin-top:12px">Total Payable</p>
+              <p class="text-lg font-extrabold text-accent" style="margin-top:8px" id="previewTotalPayable"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Payment Plan</div></div>
+        <div class="card-content">
+          <div class="grid grid-3">
+            <div class="summary-box">
+              <p class="text-muted text-sm">Payment Type</p>
+              <p class="font-bold" style="margin-top:8px;text-transform:capitalize" id="previewPaymentType"></p>
+            </div>
+            <div class="summary-box">
+              <p class="text-muted text-sm">Installment</p>
+              <p class="font-bold" style="margin-top:8px" id="previewInstallmentAmount"></p>
+            </div>
+            <div class="summary-box">
+              <p class="text-muted text-sm">Number</p>
+              <p class="font-bold" style="margin-top:8px" id="previewNumberOfInstallments"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+        <button class="btn btn-primary" id="confirmBtn" onclick="confirmRegistration()">✓ Confirm Registration</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Manage Prefixes Modal -->
+  <div id="prefixModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">Manage ID Prefixes</div>
+      <div class="prefix-list" id="prefixList"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="newPrefixInput" maxlength="8" placeholder="New prefix (1-8 chars)" class="modal-input" style="margin-bottom:0" />
+        <button class="btn btn-primary" onclick="addPrefix()">Add</button>
+      </div>
+      <div class="modal-actions" style="justify-content:flex-end;margin-top:12px">
+        <button class="btn btn-ghost" onclick="closePrefixModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Loan Modal -->
+  <div id="customLoanModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">Enter Custom Loan Amount</div>
+      <input type="number" id="customLoanInput" placeholder="Amount (₹)" class="modal-input" />
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="submitCustomLoan()">Set Amount</button>
+        <button class="btn btn-ghost" onclick="closeCustomLoanModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Interest Modal -->
+  <div id="customInterestModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">Custom Interest Rate (%)</div>
+      <input type="number" id="customInterestInput" step="0.1" placeholder="Interest %" class="modal-input" />
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="submitCustomInterest()">Set Interest</button>
+        <button class="btn btn-ghost" onclick="closeCustomInterestModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Installment Modal -->
+  <div id="customInstallmentModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">Enter Custom Installment Amount</div>
+      <input type="number" id="customInstallmentInput" placeholder="Amount (₹)" class="modal-input" />
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="submitCustomInstallment()">Set Amount</button>
+        <button class="btn btn-ghost" onclick="closeCustomInstallmentModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmationModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">Registration Saved</div>
+      <p class="text-muted" id="confirmationMessage" style="margin-bottom:16px"></p>
+      <div style="text-align:right">
+        <button class="btn btn-primary" onclick="handleDone()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase JS SDK (v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script>
+    // Firebase config (provided)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQlQzo1yVfQOYYgNCrOcqBwLEAXKfZWCE",
+      authDomain: "loan-17784.firebaseapp.com",
+      databaseURL: "https://loan-17784-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "loan-17784",
+      storageBucket: "loan-17784.firebasestorage.app",
+      messagingSenderId: "30800980008",
+      appId: "1:30800980008:web:9869d2e63a61b2e7022d1d",
+      measurementId: "G-TLV6BKKFJG"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // State and data
+    const state = {
+      prefixes: JSON.parse(localStorage.getItem('sr_prefixes')) || ['CUS','ABC','LOA'],
+      idPrefix: 'CUS',
+      customPrefix: '',
+      idNumber: parseInt(localStorage.getItem('sr_idNumber')) || 2025001,
+      loanAmount: 0,
+      interestRate: 0,
+      installmentAmount: 0,
+      paymentType: 'monthly'
+    };
+
+    // India states + sample cities (major ones) — used for datalist filtering
+    const india = {
+      "Andhra Pradesh": ["Vijayawada","Visakhapatnam","Guntur","Tirupati","Nellore"],
+      "Arunachal Pradesh": ["Itanagar","Tawang"],
+      "Assam": ["Guwahati","Dibrugarh","Jorhat"],
+      "Bihar": ["Patna","Gaya","Bhagalpur"],
+      "Chhattisgarh": ["Raipur","Bilaspur","Durg"],
+      "Goa": ["Panaji","Margao"],
+      "Gujarat": ["Ahmedabad","Surat","Vadodara","Rajkot"],
+      "Haryana": ["Gurugram","Faridabad","Panipat","Ambala"],
+      "Himachal Pradesh": ["Shimla","Dharamshala"],
+      "Jharkhand": ["Ranchi","Jamshedpur","Dhanbad"],
+      "Karnataka": ["Bengaluru","Mysuru","Mangalore","Hubli"],
+      "Kerala": ["Thiruvananthapuram","Kochi","Kozhikode"],
+      "Madhya Pradesh": ["Bhopal","Indore","Gwalior"],
+      "Maharashtra": ["Mumbai","Pune","Nagpur","Nashik","Aurangabad"],
+      "Manipur": ["Imphal"],
+      "Meghalaya": ["Shillong"],
+      "Mizoram": ["Aizawl"],
+      "Nagaland": ["Kohima","Dimapur"],
+      "Odisha": ["Bhubaneswar","Cuttack","Rourkela"],
+      "Punjab": ["Chandigarh","Ludhiana","Amritsar","Jalandhar"],
+      "Rajasthan": ["Jaipur","Jodhpur","Udaipur","Kota"],
+      "Sikkim": ["Gangtok"],
+      "Tamil Nadu": ["Chennai","Coimbatore","Madurai","Tiruchirappalli"],
+      "Telangana": ["Hyderabad","Warangal","Karimnagar"],
+      "Tripura": ["Agartala"],
+      "Uttar Pradesh": ["Lucknow","Kanpur","Varanasi","Noida","Ghaziabad"],
+      "Uttarakhand": ["Dehradun","Haridwar"],
+      "West Bengal": ["Kolkata","Howrah","Durgapur","Siliguri"],
+      "Andaman and Nicobar Islands": ["Port Blair"],
+      "Chandigarh": ["Chandigarh"],
+      "Dadra and Nagar Haveli and Daman and Diu": ["Daman","Silvassa"],
+      "Delhi": ["New Delhi","Delhi"],
+      "Jammu and Kashmir": ["Srinagar","Jammu"],
+      "Ladakh": ["Leh","Kargil"],
+      "Lakshadweep": ["Kavaratti"],
+      "Puducherry": ["Puducherry"]
+    };
+
+    // preview data
+    let previewData = null;
+
+    // Init on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+      initDate();
+      renderPrefixSelect();
+      populateStateDatalist();
+      setupEventListeners();
+      updateFullIdPreview();
+    });
+
+    function initDate(){
+      const d = new Date();
+      const dateInput = document.getElementById('date');
+      dateInput.valueAsDate = d;
+      updateDateDisplay(d);
+    }
+
+    function updateDateDisplay(d){
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mon = months[d.getMonth()];
+      const yyyy = d.getFullYear();
+      document.getElementById('dateDisplay').value = `${dd} ${mon} ${yyyy}`;
+      // keep hidden date input in sync
+      const dateInput = document.getElementById('date');
+      dateInput.valueAsDate = d;
+    }
+
+    // When native date changes, update displayed formatted text
+    document.getElementById('date').addEventListener('change', (e) => {
+      const d = new Date(e.target.value);
+      if (!isNaN(d)) updateDateDisplay(d);
+    });
+
+    // click on display opens native date picker
+    document.getElementById('dateDisplay').addEventListener('click', () => {
+      document.getElementById('date').focus();
+      document.getElementById('date').click();
+    });
+
+    // Prefix functions
+    function renderPrefixSelect(){
+      const select = document.getElementById('prefixSelect');
+      select.innerHTML = state.prefixes.map(p => `<option value="${p}">${p}</option>`).join('');
+      select.innerHTML += `<option value="CUSTOM">${state.idPrefix === 'CUSTOM' ? state.customPrefix : 'Custom'}</option>`;
+      select.value = state.idPrefix === 'CUSTOM' ? 'CUSTOM' : (state.prefixes.includes(state.idPrefix) ? state.idPrefix : state.prefixes[0]);
+      select.addEventListener('change', (e) => {
+        if (e.target.value === 'CUSTOM'){
+          const entered = prompt('Enter custom prefix (1-8 chars):', state.customPrefix || '');
+          if (entered && entered.trim().length > 0 && entered.trim().length <= 8){
+            state.customPrefix = entered.trim().toUpperCase();
+            state.idPrefix = 'CUSTOM';
+            renderPrefixSelect();
+          } else {
+            state.idPrefix = state.prefixes[0];
+            renderPrefixSelect();
+          }
+        } else {
+          state.idPrefix = e.target.value;
+        }
+        updateFullIdPreview();
+      });
+    }
+
+    function updateFullIdPreview(){
+      const prefix = state.idPrefix === 'CUSTOM' ? state.customPrefix : state.idPrefix;
+      document.getElementById('fullIdPreview').textContent = `Full ID: ${prefix}-${state.idNumber}`;
+    }
+
+    // Populate state datalist
+    function populateStateDatalist(){
+      const dl = document.getElementById('stateList');
+      dl.innerHTML = Object.keys(india).map(s => `<option value="${s}">`).join('');
+      const stateInput = document.getElementById('stateInput');
+      stateInput.addEventListener('input', (e) => {
+        const st = e.target.value;
+        populateCityDatalist(st);
+      });
+      // on blur, if state matches a key set it, else empty cities
+      stateInput.addEventListener('change', (e) => {
+        populateCityDatalist(e.target.value);
+      });
+    }
+
+    function populateCityDatalist(stateName){
+      const cityDl = document.getElementById('cityList');
+      cityDl.innerHTML = '';
+      const cities = india[stateName];
+      if (cities && cities.length){
+        cityDl.innerHTML = cities.map(c => `<option value="${c}">`).join('');
+      } else {
+        // empty or generic placeholder - offer popular cities
+        const popular = ["Delhi","Mumbai","Bengaluru","Kolkata","Chennai","Hyderabad","Pune","Ahmedabad"];
+        cityDl.innerHTML = popular.map(c => `<option value="${c}">`).join('');
+      }
+    }
+
+    // Button and input listeners
+    function setupEventListeners(){
+      // loan amount buttons
+      document.querySelectorAll('[data-amount]').forEach(btn => {
+        btn.addEventListener('click', () => setLoanAmount(Number(btn.dataset.amount)));
+      });
+      document.getElementById('loanAmountInput').addEventListener('input', (e) => {
+        const v = Number(e.target.value);
+        if (v > 0) setLoanAmount(v);
+      });
+
+      // interest buttons
+      document.querySelectorAll('[data-interest]').forEach(btn => {
+        btn.addEventListener('click', () => setInterestRate(Number(btn.dataset.interest)));
+      });
+
+      document.getElementById('interestRateInput').addEventListener('input', (e) => {
+        const v = Number(e.target.value);
+        if (!isNaN(v) && v >= 0){
+          state.interestRate = v;
+          updateInterestButtons();
+          calculateTotals();
+        }
+      });
+
+      // installment buttons
+      document.querySelectorAll('[data-installment]').forEach(btn => {
+        btn.addEventListener('click', () => setInstallmentAmount(Number(btn.dataset.installment)));
+      });
+
+      // payment type radios
+      document.querySelectorAll('input[name="paymentType"]').forEach(r => {
+        r.addEventListener('change', (e) => {
+          state.paymentType = e.target.value;
+          document.getElementById('displayFrequency').textContent = state.paymentType.charAt(0).toUpperCase() + state.paymentType.slice(1);
+        });
+      });
+
+      // form submit
+      document.getElementById('loanForm').addEventListener('submit', handleSubmit);
+    }
+
+    function setLoanAmount(amount){
+      state.loanAmount = amount;
+      document.getElementById('loanAmountInput').value = amount;
+      document.querySelectorAll('[data-amount]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.amount) === amount));
+      const auto = calculateInterestRate(amount);
+      setInterestRate(auto);
+      document.getElementById('loanDetailsExtra').style.display = 'block';
+      document.getElementById('paymentPlanCard').style.display = 'block';
+      calculateTotals();
+    }
+
+    function calculateInterestRate(amount){
+      if (amount <= 5000) return 25;
+      if (amount <= 10000) return 20;
+      if (amount <= 20000) return 15;
+      return 10;
+    }
+
+    function setInterestRate(rate){
+      state.interestRate = rate;
+      document.getElementById('interestRateInput').value = rate;
+      updateInterestButtons();
+      calculateTotals();
+    }
+
+    function updateInterestButtons(){
+      document.querySelectorAll('[data-interest]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.interest) === state.interestRate));
+    }
+
+    function setInstallmentAmount(amount){
+      state.installmentAmount = amount;
+      document.querySelectorAll('[data-installment]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.installment) === amount));
+      document.getElementById('displayInstallmentAmount').textContent = `₹${amount.toLocaleString()}`;
+      document.getElementById('installmentSummary').style.display = 'block';
+      calculateTotals();
+    }
+
+    function calculateTotals(){
+      const loanAmount = state.loanAmount;
+      const interestRate = state.interestRate;
+      const commissionFee = Math.floor(loanAmount / 5000) * 100;
+      const customerReceives = Math.max(0, loanAmount - commissionFee);
+      const interestAmount = (loanAmount * interestRate) / 100;
+      const totalPayable = loanAmount + interestAmount;
+
+      document.getElementById('commissionFee').textContent = `₹${commissionFee.toLocaleString()}`;
+      document.getElementById('customerReceives').textContent = `₹${customerReceives.toLocaleString()}`;
+      document.getElementById('summaryLoanAmount').textContent = `₹${loanAmount.toLocaleString()}`;
+      document.getElementById('interestLabel').textContent = `Interest (${interestRate}%):`;
+      document.getElementById('interestAmount').textContent = `₹${interestAmount.toLocaleString()}`;
+      document.getElementById('totalPayable').textContent = `₹${totalPayable.toLocaleString()}`;
+
+      document.getElementById('interestNote').textContent = `Auto-suggested: ${calculateInterestRate(loanAmount)}% (≤₹5000:25%, ₹5001-10000:20%, ₹10001-20000:15%, >₹20000:10%)`;
+
+      if (state.installmentAmount > 0){
+        const installments = Math.ceil(totalPayable / state.installmentAmount);
+        document.getElementById('numberOfInstallments').textContent = installments;
+      }
+    }
+
+    // Prefix modal functions
+    function openPrefixModal(){
+      renderPrefixList();
+      document.getElementById('prefixModal').classList.add('show');
+      setTimeout(()=> document.getElementById('newPrefixInput').focus(), 120);
+    }
+    function closePrefixModal(){
+      document.getElementById('prefixModal').classList.remove('show');
+    }
+
+    function renderPrefixList(){
+      const el = document.getElementById('prefixList');
+      el.innerHTML = state.prefixes.map((p, idx) => `
+        <div class="prefix-item">
+          <input value="${p}" maxlength="8" onblur="editPrefix(${idx}, this.value)" />
+          <button class="prefix-del" onclick="deletePrefix(${idx})">🗑</button>
+        </div>
+      `).join('');
+    }
+
+    function addPrefix(){
+      const v = document.getElementById('newPrefixInput').value.trim().toUpperCase();
+      if (!v || v.length > 8){ alert('Prefix must be 1-8 chars'); return; }
+      if (state.prefixes.includes(v)){ alert('Prefix exists'); document.getElementById('newPrefixInput').value=''; return; }
+      state.prefixes.push(v);
+      savePrefixes();
+      renderPrefixSelect();
+      renderPrefixList();
+      updateFullIdPreview();
+      document.getElementById('newPrefixInput').value = '';
+    }
+
+    function editPrefix(idx, val){
+      const up = val.trim().toUpperCase();
+      if (!up){ alert('Prefix cannot be empty'); renderPrefixList(); return; }
+      if (state.prefixes.some((x,i)=>x===up && i!==idx)){ alert('That prefix exists'); renderPrefixList(); return; }
+      state.prefixes[idx] = up;
+      savePrefixes();
+      renderPrefixSelect();
+    }
+
+    function deletePrefix(idx){
+      if (state.prefixes.length === 1){ alert('At least one prefix must remain'); return; }
+      if (!confirm(`Delete prefix "${state.prefixes[idx]}"?`)) return;
+      const deleted = state.prefixes.splice(idx,1)[0];
+      savePrefixes();
+      renderPrefixSelect();
+      renderPrefixList();
+      if (state.idPrefix === deleted) state.idPrefix = state.prefixes[0];
+      updateFullIdPreview();
+    }
+
+    function savePrefixes(){ localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes)); }
+
+    // Custom modals functions (loan/interest/installment)
+    function openCustomLoanModal(){ document.getElementById('customLoanModal').classList.add('show'); setTimeout(()=>document.getElementById('customLoanInput').focus(),100); }
+    function closeCustomLoanModal(){ document.getElementById('customLoanModal').classList.remove('show'); document.getElementById('customLoanInput').value = ''; }
+    function submitCustomLoan(){ const v=Number(document.getElementById('customLoanInput').value); if (!v || v<=0){ alert('Enter valid amount'); return; } setLoanAmount(v); closeCustomLoanModal(); }
+
+    function openCustomInterestModal(){ document.getElementById('customInterestModal').classList.add('show'); setTimeout(()=>document.getElementById('customInterestInput').focus(),100); }
+    function closeCustomInterestModal(){ document.getElementById('customInterestModal').classList.remove('show'); document.getElementById('customInterestInput').value = ''; }
+    function submitCustomInterest(){ const v=Number(document.getElementById('customInterestInput').value); if (isNaN(v) || v<0){ alert('Enter valid interest'); return; } setInterestRate(v); closeCustomInterestModal(); }
+
+    function openCustomInstallmentModal(){ document.getElementById('customInstallmentModal').classList.add('show'); setTimeout(()=>document.getElementById('customInstallmentInput').focus(),100); }
+    function closeCustomInstallmentModal(){ document.getElementById('customInstallmentModal').classList.remove('show'); document.getElementById('customInstallmentInput').value=''; }
+    function submitCustomInstallment(){ const v=Number(document.getElementById('customInstallmentInput').value); if (!v || v<=0){ alert('Enter valid installment'); return; } setInstallmentAmount(v); closeCustomInstallmentModal(); }
+
+    // Form submit -> preview
+    function handleSubmit(e){
+      e.preventDefault();
+      if (!state.loanAmount || state.loanAmount <= 0){ alert('Please enter/select a loan amount'); return; }
+      const name = document.getElementById('name').value.trim();
+      if (!name){ alert('Please enter customer name'); return; }
+
+      // determine selected prefix value (select change handled on render)
+      const prefixSelect = document.getElementById('prefixSelect');
+      const sel = prefixSelect.value;
+      if (sel === 'CUSTOM') state.idPrefix = state.customPrefix || 'CUS';
+      else state.idPrefix = sel;
+
+      const loanAmount = state.loanAmount;
+      const interestRate = state.interestRate;
+      const commissionFee = Math.floor(loanAmount / 5000) * 100;
+      const customerReceives = Math.max(0, loanAmount - commissionFee);
+      const interestAmount = (loanAmount * interestRate) / 100;
+      const totalPayable = loanAmount + interestAmount;
+      const numberOfInstallments = state.installmentAmount > 0 ? Math.ceil(totalPayable / state.installmentAmount) : 0;
+
+      previewData = {
+        customerId: `${state.idPrefix === 'CUSTOM' ? state.customPrefix : state.idPrefix}-${state.idNumber}`,
+        name,
+        parentName: document.getElementById('parentName').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        aadhar: document.getElementById('aadhar').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        state: document.getElementById('stateInput').value.trim(),
+        city: document.getElementById('cityInput').value.trim(),
+        date: document.getElementById('date').value,
+        loanAmount,
+        commissionFee,
+        customerReceives,
+        interestRate,
+        interestAmount,
+        totalPayable,
+        paymentType: state.paymentType,
+        installmentAmount: state.installmentAmount,
+        numberOfInstallments
+      };
+
+      showPreview();
+    }
+
+    function showPreview(){
+      // fill preview fields (note: user asked to not show preview date cell; so preview does not show date separately)
+      document.getElementById('previewCustomerId').textContent = previewData.customerId;
+      document.getElementById('previewName').textContent = previewData.name;
+      document.getElementById('previewParentName').textContent = previewData.parentName;
+      document.getElementById('previewPhone').textContent = previewData.phone;
+      document.getElementById('previewAadhar').textContent = previewData.aadhar;
+      document.getElementById('previewAddress').textContent = previewData.address;
+      document.getElementById('previewState').textContent = previewData.state;
+      document.getElementById('previewCity').textContent = previewData.city;
+
+      document.getElementById('previewLoanAmount').textContent = `₹${previewData.loanAmount.toLocaleString()}`;
+      document.getElementById('previewCommissionFee').textContent = `₹${previewData.commissionFee.toLocaleString()}`;
+      document.getElementById('previewCustomerReceives').textContent = `₹${previewData.customerReceives.toLocaleString()}`;
+      document.getElementById('previewInterestRate').textContent = `${previewData.interestRate}%`;
+      document.getElementById('previewInterestAmount').textContent = `₹${previewData.interestAmount.toLocaleString()}`;
+      document.getElementById('previewTotalPayable').textContent = `₹${previewData.totalPayable.toLocaleString()}`;
+
+      document.getElementById('previewPaymentType').textContent = previewData.paymentType;
+      document.getElementById('previewInstallmentAmount').textContent = previewData.installmentAmount > 0 ? `₹${previewData.installmentAmount.toLocaleString()}` : '—';
+      document.getElementById('previewNumberOfInstallments').textContent = previewData.numberOfInstallments;
+
+      document.getElementById('form-section').classList.add('hidden');
+      document.getElementById('preview-section').classList.add('show');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function goBack(){
+      document.getElementById('preview-section').classList.remove('show');
+      document.getElementById('form-section').classList.remove('hidden');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function confirmRegistration(){
+      const btn = document.getElementById('confirmBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const dataToSave = {...previewData, savedAt: Date.now()};
+
+      // sanitize key
+      const safeKey = dataToSave.customerId.replace(/[.$#[\]/]/g, '_');
+
+      try {
+        await database.ref('customers/' + safeKey).set(dataToSave);
+        await database.ref('registrations').push({...dataToSave, pushedAt: Date.now() });
+
+        // increment ID and persist
+        state.idNumber++;
+        localStorage.setItem('sr_idNumber', state.idNumber);
+        updateFullIdPreview();
+
+        document.getElementById('confirmationMessage').textContent = `Customer ${dataToSave.customerId} saved successfully.`;
+        document.getElementById('confirmationModal').classList.add('show');
+      } catch (err) {
+        console.error('Firebase save error', err);
+        alert('Failed to save to Firebase. Check console for details.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✓ Confirm Registration';
+      }
+    }
+
+    function handleDone(){
+      document.getElementById('confirmationModal').classList.remove('show');
+      resetForm();
+      goBack();
+    }
+
+    function resetForm(){
+      document.getElementById('loanForm').reset();
+      state.loanAmount = 0; state.interestRate = 0; state.installmentAmount = 0; state.paymentType = 'monthly';
+      document.getElementById('loanAmountInput').value = '';
+      document.getElementById('interestRateInput').value = '';
+      document.getElementById('loanDetailsExtra').style.display = 'none';
+      document.getElementById('paymentPlanCard').style.display = 'none';
+      document.getElementById('installmentSummary').style.display = 'none';
+      document.querySelectorAll('[data-amount], [data-interest], [data-installment]').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('displayFrequency').textContent = 'Monthly';
+      previewData = null;
+      initDate();
+    }
+
+    function handleNewLoan(){
+      if (document.getElementById('preview-section').classList.contains('show')) goBack();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // Expose small helpers for console
+    window._sr = {state, setLoanAmount, setInterestRate, setInstallmentAmount, calculateTotals};
+  </script>
+</body>
+</html>
