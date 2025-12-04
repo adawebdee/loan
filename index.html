@@ -641,10 +641,11 @@
 
     // App state
     const state = {
-      prefixes: JSON.parse(localStorage.getItem('sr_prefixes')) || ['CUS','ABC','LOA'],
+      // prefixes and idNumber will be synced from Firebase realtime DB.
+      prefixes: ['CUS','ABC','LOA'],
       idPrefix: 'CUS',
       customPrefix: '',
-      idNumber: parseInt(localStorage.getItem('sr_idNumber')) || 2025001,
+      idNumber: 2025001,
       loanAmount: 0,
       interestRate: 0,
       installmentAmount: 0,
@@ -666,7 +667,72 @@
       const dateEl = document.getElementById('date');
       dateEl.valueAsDate = today;
       updateDateDisplay(today);
+
+      // Initialize and bind Realtime DB listeners for prefixes and id counter.
+      initializeRealtimeSettings();
     });
+
+    // Initialize and sync settings from Firebase Realtime Database
+    function initializeRealtimeSettings(){
+      const prefixesRef = database.ref('settings/prefixes');
+      const nextIdRef = database.ref('settings/nextId');
+
+      // Preference: if the DB has nothing, try to migrate any localStorage values if present, otherwise set defaults.
+      const localPrefixes = (() => { try { return JSON.parse(localStorage.getItem('sr_prefixes')); } catch { return null; } })();
+      const localIdNum = (() => { const v = parseInt(localStorage.getItem('sr_idNumber')); return Number.isInteger(v) ? v : null; })();
+
+      // Ensure prefixes exist on DB if absent
+      prefixesRef.once('value').then(snap => {
+        if (!snap.exists()) {
+          const initial = Array.isArray(localPrefixes) && localPrefixes.length ? localPrefixes : state.prefixes;
+          prefixesRef.set(initial).catch(err => console.error('Failed to set initial prefixes', err));
+        } else {
+          const val = snap.val();
+          if (Array.isArray(val) && val.length) {
+            state.prefixes = val;
+            renderPrefixSelect();
+            renderPrefixList();
+          }
+        }
+      }).catch(err => console.error(err));
+
+      // Realtime listener (keeps UI in sync across clients)
+      prefixesRef.on('value', snap => {
+        const val = snap.val();
+        if (Array.isArray(val) && val.length) {
+          state.prefixes = val;
+          // keep selected idPrefix valid
+          if (!state.prefixes.includes(state.idPrefix) && state.idPrefix !== 'CUSTOM') {
+            state.idPrefix = state.prefixes[0];
+          }
+          renderPrefixSelect();
+          renderPrefixList();
+        }
+      });
+
+      // Ensure nextId exists on DB if absent
+      nextIdRef.once('value').then(snap => {
+        if (!snap.exists()) {
+          const initialId = Number.isInteger(localIdNum) ? localIdNum : state.idNumber;
+          nextIdRef.set(initialId).catch(err => console.error('Failed to set initial nextId', err));
+        } else {
+          const val = snap.val();
+          if (Number.isInteger(val)) {
+            state.idNumber = val;
+            updateFullIdPreview();
+          }
+        }
+      }).catch(err => console.error(err));
+
+      // Realtime listener for nextId changes
+      nextIdRef.on('value', snap => {
+        const val = snap.val();
+        if (Number.isInteger(val)) {
+          state.idNumber = val;
+          updateFullIdPreview();
+        }
+      });
+    }
 
     /* Date handling */
     function updateDateDisplay(d){
@@ -717,8 +783,9 @@
     /* Prefix management */
     function renderPrefixSelect(){
       const sel = document.getElementById('prefixSelect');
+      // Build options from state.prefixes, keep CUSTOM option trailing
       sel.innerHTML = state.prefixes.map(p => `<option value="${p}">${p}</option>`).join('') +
-                      `<option value="CUSTOM">${state.idPrefix === 'CUSTOM' ? state.customPrefix || 'Custom' : 'Custom'}</option>`;
+                      `<option value="CUSTOM">${state.idPrefix === 'CUSTOM' ? (state.customPrefix || 'Custom') : 'Custom'}</option>`;
       sel.value = state.idPrefix === 'CUSTOM' ? 'CUSTOM' : (state.prefixes.includes(state.idPrefix) ? state.idPrefix : state.prefixes[0]);
       updateFullIdPreview();
     }
@@ -759,38 +826,51 @@
         // delete button with a trash icon for clarity
         const del=document.createElement('button'); del.className='prefix-del';
         del.title='Delete'; del.setAttribute('aria-label','Delete prefix');
-        del.innerText='🗑'; // changed delete icon
+        del.innerText='🗑';
         del.addEventListener('click', ()=>deletePrefix(idx));
         item.appendChild(input); item.appendChild(del); el.appendChild(item);
       });
     }
+
+    // Write prefixes array to Firebase
+    function writePrefixesToDb(arr){
+      return database.ref('settings/prefixes').set(arr).catch(err => {
+        console.error('Failed to write prefixes to DB', err);
+        alert('Failed to update prefixes in database.');
+      });
+    }
+
     function addPrefix(){
       const v=document.getElementById('newPrefixInput').value.trim().toUpperCase();
       if(!v||v.length>8){alert('Prefix must be 1-8 chars');return;}
       if(state.prefixes.includes(v)){alert('Prefix exists');document.getElementById('newPrefixInput').value='';return;}
-      state.prefixes.push(v);
-      localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes));
-      renderPrefixSelect();
-      renderPrefixList();
-      updateFullIdPreview();
-      document.getElementById('newPrefixInput').value='';
-      // keep focus for quick additions
-      setTimeout(()=>document.getElementById('newPrefixInput').focus(),50);
+      const newArr = state.prefixes.concat([v]);
+      // update DB and let listener update local state/UI
+      writePrefixesToDb(newArr).then(() => {
+        document.getElementById('newPrefixInput').value='';
+        setTimeout(()=>document.getElementById('newPrefixInput').focus(),50);
+      });
     }
     function editPrefix(idx,val){
       const up=val.trim().toUpperCase();
       if(!up){alert('Cannot be empty'); renderPrefixList(); return;}
       if(state.prefixes.some((x,i)=>x===up && i!==idx)){alert('That prefix exists'); renderPrefixList(); return;}
-      state.prefixes[idx]=up; localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes)); renderPrefixSelect();
+      const newArr = state.prefixes.slice();
+      newArr[idx]=up;
+      writePrefixesToDb(newArr);
     }
     function deletePrefix(idx){
       if(state.prefixes.length===1){alert('At least one prefix must remain'); return;}
       if(!confirm(`Delete prefix "${state.prefixes[idx]}"?`)) return;
-      const deleted=state.prefixes.splice(idx,1)[0];
-      localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes));
-      renderPrefixSelect(); renderPrefixList();
-      if(state.idPrefix===deleted) state.idPrefix=state.prefixes[0];
-      updateFullIdPreview();
+      const deleted=state.prefixes[idx];
+      const newArr = state.prefixes.slice();
+      newArr.splice(idx,1);
+      writePrefixesToDb(newArr).then(()=> {
+        if(state.idPrefix===deleted) {
+          state.idPrefix = state.prefixes.length ? state.prefixes[0] : (state.customPrefix || 'CUS');
+          renderPrefixSelect();
+        }
+      });
     }
 
     /* State & city handling */
@@ -801,12 +881,9 @@
       // Ensure city input is plain (no datalist)
       const cityInput = document.getElementById('cityInput');
       cityInput.removeAttribute('list');
-      // If additional logic is needed when state changes, it can be added here, but per request we remove the city dropdown behaviour.
     }
 
     function populateCitySuggestions(stateName){
-      // Intentionally left empty: per request, city should be a plain text cell without dropdown.
-      // This function remains in case you want to extend behaviour later.
       const input = document.getElementById('cityInput');
       if (input) input.removeAttribute('list');
     }
@@ -906,7 +983,59 @@
 
     function goBack(){ document.getElementById('preview-section').classList.remove('show'); document.getElementById('form-section').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
 
-    async function confirmRegistration(){ const btn=document.getElementById('confirmBtn'); btn.disabled=true; btn.textContent='Saving...'; const data={...previewData, savedAt:Date.now()}; const safeKey=data.customerId.replace(/[.$#[\]/]/g,'_'); try{ await database.ref('customers/'+safeKey).set(data); await database.ref('registrations').push({...data, pushedAt:Date.now()}); state.idNumber++; localStorage.setItem('sr_idNumber', state.idNumber); updateFullIdPreview(); document.getElementById('confirmationMessage').textContent=`Customer ${data.customerId} saved successfully.`; document.getElementById('confirmationModal').classList.add('show'); }catch(err){ console.error('Firebase save error',err); alert('Failed to save to Firebase.'); }finally{ btn.disabled=false; btn.textContent='✓ Confirm Registration'; } }
+    // Atomically allocate the next ID using a Realtime DB transaction
+    async function allocateNextId(){
+      const ref = database.ref('settings/nextId');
+      try {
+        const result = await ref.transaction(current => {
+          // If no value exists, initialize with the current UI state or the default
+          if (current == null) {
+            // Set to state.idNumber + 1 so the assigned for this call becomes state.idNumber
+            return (state.idNumber || 2025001) + 1;
+          }
+          return current + 1;
+        }, undefined, false);
+        if (!result.committed) throw new Error('ID allocation transaction not committed');
+        const newVal = result.snapshot.val();
+        const assigned = newVal - 1;
+        return assigned;
+      } catch (err) {
+        console.error('ID allocation failed', err);
+        throw err;
+      }
+    }
+
+    async function confirmRegistration(){
+      const btn=document.getElementById('confirmBtn');
+      btn.disabled=true; btn.textContent='Saving...';
+      try{
+        // Allocate an ID atomically in the DB to avoid race conditions with multiple clients
+        const assignedNumber = await allocateNextId();
+        // Ensure we use the selected prefix
+        const sel=document.getElementById('prefixSelect').value;
+        const prefixToUse = sel === 'CUSTOM' ? (state.customPrefix || 'CUS') : sel;
+        // Update previewData.customerId to the allocated one (in case it changed)
+        previewData.customerId = `${prefixToUse}-${assignedNumber}`;
+        // Update preview display so user sees final ID
+        document.getElementById('previewCustomerId').textContent = previewData.customerId;
+
+        const data={...previewData, savedAt:Date.now()};
+        const safeKey=data.customerId.replace(/[.$#[\]/]/g,'_');
+
+        // Save customer record and a registration push
+        await database.ref('customers/'+safeKey).set(data);
+        await database.ref('registrations').push({...data, pushedAt:Date.now()});
+
+        // NOTE: state.idNumber will be updated by the DB listener (settings/nextId)
+        document.getElementById('confirmationMessage').textContent=`Customer ${data.customerId} saved successfully.`;
+        document.getElementById('confirmationModal').classList.add('show');
+      }catch(err){
+        console.error('Firebase save or allocation error',err);
+        alert('Failed to save to Firebase. Please try again.');
+      }finally{
+        btn.disabled=false; btn.textContent='✓ Confirm Registration';
+      }
+    }
 
     function handleDone(){ document.getElementById('confirmationModal').classList.remove('show'); resetForm(); goBack(); }
 
@@ -916,6 +1045,19 @@
 
     /* Utilities */
     function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    /* Custom modal helpers (kept unchanged behaviour, only referenced functions) */
+    function openCustomLoanModal(){ document.getElementById('customLoanModal').classList.add('show'); setTimeout(()=>document.getElementById('customLoanInput').focus(),100); }
+    function closeCustomLoanModal(){ document.getElementById('customLoanModal').classList.remove('show'); }
+    function submitCustomLoan(){ const v = Number(document.getElementById('customLoanInput').value); if(!v || v<=0){ alert('Enter valid amount'); return; } setLoanAmount(v); closeCustomLoanModal(); }
+
+    function openCustomInterestModal(){ document.getElementById('customInterestModal').classList.add('show'); setTimeout(()=>document.getElementById('customInterestInput').focus(),100); }
+    function closeCustomInterestModal(){ document.getElementById('customInterestModal').classList.remove('show'); }
+    function submitCustomInterest(){ const v = Number(document.getElementById('customInterestInput').value); if(isNaN(v) || v<0){ alert('Enter valid interest'); return; } setInterestRate(v); closeCustomInterestModal(); }
+
+    function openCustomInstallmentModal(){ document.getElementById('customInstallmentModal').classList.add('show'); setTimeout(()=>document.getElementById('customInstallmentInput').focus(),100); }
+    function closeCustomInstallmentModal(){ document.getElementById('customInstallmentModal').classList.remove('show'); }
+    function submitCustomInstallment(){ const v = Number(document.getElementById('customInstallmentInput').value); if(!v || v<=0){ alert('Enter valid installment'); return; } setInstallmentAmount(v); closeCustomInstallmentModal(); }
   </script>
 </body>
 </html>
