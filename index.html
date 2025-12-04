@@ -4,18 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SR Finance — Loan Registration</title>
-  <meta name="description" content="SR Finance loan registration system - Dark mode layout" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="description" content="SR Finance loan registration system - Dark blue theme" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     :root{
       --bg:#071017;
       --surface:#0d1a24;
-      --surface-elevated:#112230;
       --text:#e6f0f6;
       --muted:#7a8a99;
-      --accent-blue:#0b5ed7; /* changed to dark blue */
-      --accent-green:#27c48c;
+      --accent-blue:#0b5ed7;
+      --accent-blue-2:#084ab0;
+      --success:#27c48c;
       --danger:#ff6b6b;
       --border:rgba(255,255,255,0.04);
       --radius:14px;
@@ -23,6 +23,7 @@
       --glass:rgba(255,255,255,0.02);
       --gradient-surface:linear-gradient(180deg,var(--surface),#071422);
       --gradient-header:linear-gradient(90deg,rgba(3,8,12,0.97),rgba(7,18,24,0.97));
+      --select-arrow: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="%230b5ed7" d="M6 8L0 0h12z"/></svg>');
     }
     html,body{height:100%}
     body{
@@ -48,7 +49,7 @@
     .brand{display:flex;align-items:center;gap:12px}
     .logo{
       width:48px;height:48px;border-radius:12px;
-      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue));
+      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue-2));
       display:flex;align-items:center;justify-content:center;
       font-weight:800;color:var(--text);font-size:18px;
       box-shadow:0 8px 20px rgba(11,94,215,0.15);
@@ -56,9 +57,7 @@
     .brand h1{font-size:18px;margin:0;font-weight:700}
     .brand p{margin:0;color:var(--muted);font-size:13px}
     .header-right{display:flex;gap:10px;align-items:center}
-    .status{color:var(--accent-green);font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px}
-    .status::before{content:'';width:8px;height:8px;background:var(--accent-green);border-radius:50%;animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .no-wrap { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; display:inline-block; vertical-align:middle; }
 
     /* Page */
     .page{max-width:1100px;margin:18px auto;padding:0 16px}
@@ -73,11 +72,11 @@
       border-radius:var(--radius);
       box-shadow:var(--card-shadow);
       overflow:hidden;
-      margin-bottom:16px;
+      margin-bottom:20px;
     }
     .card-header{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.03)}
     .card-title{font-weight:700;color:var(--accent-blue);font-size:14px;text-transform:uppercase;letter-spacing:0.5px}
-    .card-content{padding:16px}
+    .card-content{padding:18px}
 
     /* Grid */
     .grid{display:grid;gap:14px}
@@ -86,42 +85,77 @@
     @media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
 
     /* Form Elements */
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
-    input[type="text"],input[type="tel"],input[type="number"],input[type="date"],select, input[list]{
+    label{display:block;font-size:13px;color:var(--muted);Margin-bottom:6px;font-weight:600}
+    input[type="text"],input[type="tel"],input[type="number"],input[type="date"],select, textarea{
       width:100%;padding:12px 14px;border-radius:12px;
       background:var(--glass);border:1px solid rgba(255,255,255,0.05);
       color:var(--text);font-size:14px;font-family:inherit;
-      transition:all 0.2s ease;
+      transition:all 0.15s ease;
     }
     input::placeholder{color:rgba(230,240,246,0.25)}
-    input:focus,select:focus{outline:none;border-color:rgba(11,94,215,0.3);box-shadow:0 0 0 3px rgba(11,94,215,0.08)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:rgba(11,94,215,0.3);box-shadow:0 0 0 3px rgba(11,94,215,0.08)}
     select option{background:var(--surface);color:var(--text)}
+
+    /* Select dark arrow styling */
+    .select-wrap { position:relative; }
+    .select-wrap select {
+      appearance:none; -webkit-appearance:none; -moz-appearance:none; padding-right:40px;
+      background-image: var(--select-arrow);
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 12px 8px;
+    }
+
+    /* Date display with calendar icon */
+    .date-wrap { position:relative; display:flex; align-items:center; gap:8px; }
+    .date-input-display{
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      background:var(--glass);
+      border:1px solid rgba(255,255,255,0.05);
+      color:var(--text);
+      font-weight:700;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:relative;
+    }
+    .calendar-btn{
+      background:transparent;border:none;color:var(--accent-blue);cursor:pointer;padding:6px;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    /* Native date input overlay - transparent but interactive so native calendar shows on click/tap */
+    .date-native-input{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      opacity:0;
+      cursor:pointer;
+      border-radius:12px;
+      background:transparent;
+      color:transparent;
+    }
 
     /* Buttons */
     .btn{
       border:none;cursor:pointer;font-weight:700;border-radius:10px;padding:10px 16px;
-      font-family:inherit;font-size:14px;transition:all 0.2s ease;
+      font-family:inherit;font-size:14px;transition:all 0.15s ease;
     }
     .btn-primary{
-      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue));
+      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue-2));
       color:white;box-shadow:0 8px 24px rgba(11,94,215,0.2);
     }
-    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(11,94,215,0.25)}
-    .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none}
     .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .btn-ghost:hover{background:rgba(255,255,255,0.03)}
-    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);padding:10px 14px}
-    .btn-outline:hover{border-color:rgba(11,94,215,0.3);background:rgba(11,94,215,0.05)}
-    .btn-outline.active{
-      background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue));
-      color:white;border-color:transparent;
-      box-shadow:0 6px 20px rgba(11,94,215,0.2);
-    }
-    .btn-full{width:100%;padding:14px;font-size:15px}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .btn-outline.active{background:linear-gradient(135deg,var(--accent-blue),var(--accent-blue-2));color:white;border-color:transparent;box-shadow:0 6px 20px rgba(11,94,215,0.2)}
+    .btn-full{width:100%;padding:14px;font-size:15px;margin-bottom:28px}
     .btn-sm{padding:8px 12px;font-size:13px}
 
     /* Amount Buttons */
-    .btn-group{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+    .btn-group{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
 
     /* Summary Box */
     .summary-box{
@@ -137,7 +171,7 @@
     /* Text Utilities */
     .text-muted{color:var(--muted)}
     .text-accent{color:var(--accent-blue)}
-    .text-success{color:var(--accent-green)}
+    .text-success{color:var(--success)}
     .text-danger{color:var(--danger)}
     .text-lg{font-size:18px}
     .text-sm{font-size:13px}
@@ -150,59 +184,34 @@
     .radio-label input{accent-color:var(--accent-blue);width:16px;height:16px}
 
     /* Modal */
-    .modal{
-      display:none;position:fixed;inset:0;
-      background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
-      z-index:200;align-items:center;justify-content:center;padding:20px;
-    }
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:20px}
     .modal.show{display:flex}
-    .modal-content{
-      width:100%;max-width:480px;
-      background:var(--gradient-surface);
-      border-radius:16px;padding:20px;
-      border:1px solid var(--border);
-      box-shadow:0 20px 60px rgba(0,0,0,0.5);
-      animation:modalIn 0.2s ease;
-    }
-    @keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+    .modal-content{width:100%;max-width:640px;background:var(--gradient-surface);border-radius:16px;padding:20px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,0.5)}
     .modal-header{font-weight:800;color:var(--text);margin-bottom:16px;font-size:18px}
-    .modal-input{
-      width:100%;padding:12px 14px;border-radius:12px;
-      background:var(--glass);border:1px solid rgba(255,255,255,0.05);
-      color:var(--text);font-size:14px;font-family:inherit;margin-bottom:12px;
-    }
-    .modal-input:focus{outline:none;border-color:rgba(11,94,215,0.3)}
-    .modal-actions{display:flex;gap:10px;margin-top:16px}
+    .modal-input{width:100%;padding:12px 14px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,0.05);color:var(--text);margin-bottom:12px}
+    .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
 
     /* Prefix List */
-    .prefix-list{display:flex;flex-direction:column;gap:8px;max-height:250px;overflow-y:auto;margin-bottom:12px}
-    .prefix-item{
-      display:flex;gap:8px;align-items:center;padding:10px 12px;
-      border-radius:12px;background:rgba(255,255,255,0.02);
-      border:1px solid rgba(255,255,255,0.03);
-    }
-    .prefix-item input{
-      flex:1;background:transparent;border:none;color:var(--text);
-      font-weight:700;font-size:14px;padding:4px;
-    }
-    .prefix-item input:focus{outline:none}
+    .prefix-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto;margin-bottom:12px}
+    .prefix-item{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+    .prefix-item input{flex:1;background:transparent;border:none;color:var(--text);font-weight:700;font-size:14px;padding:4px}
     .prefix-del{
       width:36px;height:36px;border-radius:8px;border:none;cursor:pointer;
-      background:rgba(255,107,107,0.1);color:var(--danger);font-size:16px;
-      display:flex;align-items:center;justify-content:center;
-      transition:background 0.2s;
+      background:transparent;color:var(--danger);font-size:16px;display:flex;align-items:center;justify-content:center;
     }
-    .prefix-del:hover{background:rgba(255,107,107,0.2)}
+    .prefix-del:hover{background:rgba(255,92,92,0.08)}
 
-    /* Preview Section */
+    /* City search results */
+    .search-result{padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);margin-bottom:8px;cursor:pointer}
+    .search-result:hover{background:rgba(11,94,215,0.06)}
+
+    /* Preview */
     #preview-section{display:none}
-    #preview-section.show{display:block;animation:fadeIn 0.3s ease}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    #preview-section.show{display:block}
 
-    /* Hide form when preview is shown */
+    /* Hide form when preview shown */
     #form-section.hidden{display:none}
 
-    /* Responsive */
     @media(max-width:520px){
       .card-header{padding:12px}
       .card-content{padding:14px}
@@ -223,18 +232,16 @@
         </div>
       </div>
       <div class="header-right">
-        <div class="status">Ready</div>
-        <button class="btn btn-ghost" onclick="handleNewLoan()">+ New Loan</button>
+        <button class="btn btn-ghost no-wrap" onclick="handleNewLoan()">+ New Loan</button>
       </div>
     </div>
   </header>
 
   <main class="page">
-    <!-- Form Section -->
     <section id="form-section">
       <div class="intro">
         <h2>Register a Loan</h2>
-        <p>Complete, responsive and production-ready loan registration system (dark-blue theme).</p>
+        <p class="text-muted">Select state and type the city. Click the calendar icon or date to pick a date.</p>
       </div>
 
       <form id="loanForm" autocomplete="off">
@@ -245,8 +252,10 @@
             <div class="grid grid-2">
               <div>
                 <label>Customer ID Prefix</label>
-                <div style="display:flex;gap:8px">
-                  <select id="prefixSelect" style="flex:1"></select>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <div class="select-wrap" style="flex:1">
+                    <select id="prefixSelect"></select>
+                  </div>
                   <button type="button" class="btn btn-outline btn-sm" onclick="openPrefixModal()">Manage</button>
                 </div>
                 <p class="text-muted text-sm" style="margin-top:8px" id="fullIdPreview">Full ID: CUS-2025001</p>
@@ -254,13 +263,19 @@
 
               <div>
                 <label>Date</label>
-                <div>
-                  <!-- Visible formatted representation that opens native calendar: -->
-                  <input type="text" id="dateDisplay" readonly style="width:100%;padding:12px 14px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,0.05);color:var(--text);font-weight:700;cursor:pointer" />
-                  <!-- Native date input (offscreen) -->
-                  <input type="date" id="date" style="position: absolute; left: -9999px;" />
+                <div class="date-wrap">
+                  <div id="dateDisplay" class="date-input-display" role="button" aria-label="Select date" tabindex="0">
+                    <span id="dateText">DD MMM YYYY</span>
+                    <button type="button" class="calendar-btn" id="calendarBtn" title="Open calendar" aria-label="Open calendar">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="5" width="18" height="16" rx="2" stroke="#0b5ed7" stroke-width="1.6" fill="transparent"></rect>
+                        <path d="M16 3v4M8 3v4" stroke="#0b5ed7" stroke-width="1.6" stroke-linecap="round"></path>
+                      </svg>
+                    </button>
+                    <!-- Native date input is now overlayed and interactive (transparent) so clicking either the display or icon opens system picker -->
+                    <input type="date" id="date" class="date-native-input" />
+                  </div>
                 </div>
-                <p class="text-muted text-sm" style="margin-top:6px">Click the date to open calendar. Defaults to today.</p>
               </div>
 
               <div>
@@ -280,24 +295,25 @@
 
               <div>
                 <label>Aadhar *</label>
-                <input type="text" id="aadhar" placeholder="Aadhar number" required />
+                <input type="text" id="aadhar" inputmode="numeric" placeholder="1234-5678-9012" maxlength="14" required />
               </div>
 
               <div>
                 <label>Address</label>
-                <input type="text" id="address" placeholder="Street, area, etc." />
+                <textarea id="address" placeholder="Street, area, landmark" rows="2"></textarea>
               </div>
 
               <div>
-                <label>State (India)</label>
-                <input list="stateList" id="stateInput" placeholder="Select or type state" />
-                <datalist id="stateList"></datalist>
+                <label>State</label>
+                <div class="select-wrap">
+                  <select id="stateSelect"></select>
+                </div>
               </div>
 
-              <div>
+              <div style="grid-column:1 / -1">
                 <label>City</label>
-                <input list="cityList" id="cityInput" placeholder="Select or type city" />
-                <datalist id="cityList"></datalist>
+                <!-- Plain text input for city (no dropdown/datalist) -->
+                <input id="cityInput" type="text" placeholder="Type city/town/village" />
               </div>
             </div>
           </div>
@@ -370,12 +386,8 @@
             <div style="margin-bottom:16px">
               <label>Payment Type</label>
               <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="paymentType" value="weekly" /> Weekly
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="paymentType" value="monthly" checked /> Monthly
-                </label>
+                <label class="radio-label"><input type="radio" name="paymentType" value="weekly" /> Weekly</label>
+                <label class="radio-label"><input type="radio" name="paymentType" value="monthly" checked /> Monthly</label>
               </div>
             </div>
 
@@ -420,40 +432,37 @@
               <p class="text-muted text-sm">Customer ID</p>
               <p class="text-lg font-extrabold text-accent" style="margin-top:6px" id="previewCustomerId"></p>
             </div>
-
             <div>
               <p class="text-muted text-sm">Name</p>
               <p style="margin-top:6px" id="previewName"></p>
             </div>
-
             <div>
               <p class="text-muted text-sm">Parent Name</p>
               <p style="margin-top:6px" id="previewParentName"></p>
             </div>
-
             <div>
               <p class="text-muted text-sm">Phone</p>
               <p style="margin-top:6px" id="previewPhone"></p>
             </div>
-
             <div>
               <p class="text-muted text-sm">Aadhar</p>
               <p style="margin-top:6px" id="previewAadhar"></p>
             </div>
-
             <div>
               <p class="text-muted text-sm">Address</p>
               <p style="margin-top:6px" id="previewAddress"></p>
             </div>
-
             <div>
               <p class="text-muted text-sm">State</p>
               <p style="margin-top:6px" id="previewState"></p>
             </div>
-
             <div>
               <p class="text-muted text-sm">City</p>
               <p style="margin-top:6px" id="previewCity"></p>
+            </div>
+            <div>
+              <p class="text-muted text-sm">Date</p>
+              <p style="margin-top:6px" id="previewDate"></p>
             </div>
           </div>
         </div>
@@ -510,18 +519,31 @@
     </section>
   </main>
 
-  <!-- Manage Prefixes Modal -->
+  <!-- Prefix Modal -->
   <div id="prefixModal" class="modal" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">Manage ID Prefixes</div>
       <div class="prefix-list" id="prefixList"></div>
-      <div style="display:flex;gap:8px">
-        <input type="text" id="newPrefixInput" maxlength="8" placeholder="New prefix (1-8 chars)" class="modal-input" style="margin-bottom:0" />
+
+      <!-- New prefix input now placed full width under the list; Add and Close buttons are side-by-side -->
+      <input type="text" id="newPrefixInput" maxlength="8" placeholder="New prefix (1-8 chars)" class="modal-input" />
+      <div class="modal-actions">
         <button class="btn btn-primary" onclick="addPrefix()">Add</button>
-      </div>
-      <div class="modal-actions" style="justify-content:flex-end;margin-top:12px">
         <button class="btn btn-ghost" onclick="closePrefixModal()">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- City Search Modal (optional, kept but not required) -->
+  <div id="citySearchModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">Search City / Town / Village</div>
+      <input type="text" id="citySearchInput" class="modal-input" placeholder="Type village/town name (optional)" />
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="searchPlacesByQuery()">Search</button>
+        <button class="btn btn-ghost" onclick="closeCitySearch()">Close</button>
+      </div>
+      <div id="citySearchResults" style="max-height:360px;overflow:auto"></div>
     </div>
   </div>
 
@@ -577,7 +599,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
-    // Firebase config (provided)
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDQlQzo1yVfQOYYgNCrOcqBwLEAXKfZWCE",
       authDomain: "loan-17784.firebaseapp.com",
@@ -591,7 +613,33 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // State and data
+    // Sample PLACES mapping (used when available to populate city suggestions)
+    const PLACES = {
+      "Tamil Nadu": {
+        "Coimbatore": ["Coimbatore","Pollachi","Mettupalayam","Annur","Periyanayakkanpalayam","Sundarapuram","Sulur","Karumathampatti","Valparai","Kinathukadavu","All villages..."],
+        "Chennai": ["Chennai","Ambattur","Sholinganallur","Velachery","All villages..."]
+      },
+      "Andhra Pradesh": {
+        "East Godavari": ["Kakinada","Rajahmundry","Pithapuram","All villages..."],
+        "Anantapur": ["Anantapur","Dharmavaram","Penukonda","All villages..."]
+      },
+      "Karnataka": {
+        "Bengaluru Urban": ["Bengaluru","Whitefield","Yelahanka","All villages..."],
+        "Mysuru": ["Mysuru","Hunsur","Nanjangud","All villages..."]
+      }
+    };
+
+    // Full states list now used for the State dropdown
+    const STATES = [
+      "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
+      "Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh",
+      "Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab",
+      "Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand",
+      "West Bengal","Delhi","Jammu and Kashmir","Ladakh","Puducherry","Andaman and Nicobar Islands",
+      "Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Lakshadweep"
+    ];
+
+    // App state
     const state = {
       prefixes: JSON.parse(localStorage.getItem('sr_prefixes')) || ['CUS','ABC','LOA'],
       idPrefix: 'CUS',
@@ -603,104 +651,90 @@
       paymentType: 'monthly'
     };
 
-    // India states + sample cities (major ones) — used for datalist filtering
-    const india = {
-      "Andhra Pradesh": ["Vijayawada","Visakhapatnam","Guntur","Tirupati","Nellore"],
-      "Arunachal Pradesh": ["Itanagar","Tawang"],
-      "Assam": ["Guwahati","Dibrugarh","Jorhat"],
-      "Bihar": ["Patna","Gaya","Bhagalpur"],
-      "Chhattisgarh": ["Raipur","Bilaspur","Durg"],
-      "Goa": ["Panaji","Margao"],
-      "Gujarat": ["Ahmedabad","Surat","Vadodara","Rajkot"],
-      "Haryana": ["Gurugram","Faridabad","Panipat","Ambala"],
-      "Himachal Pradesh": ["Shimla","Dharamshala"],
-      "Jharkhand": ["Ranchi","Jamshedpur","Dhanbad"],
-      "Karnataka": ["Bengaluru","Mysuru","Mangalore","Hubli"],
-      "Kerala": ["Thiruvananthapuram","Kochi","Kozhikode"],
-      "Madhya Pradesh": ["Bhopal","Indore","Gwalior"],
-      "Maharashtra": ["Mumbai","Pune","Nagpur","Nashik","Aurangabad"],
-      "Manipur": ["Imphal"],
-      "Meghalaya": ["Shillong"],
-      "Mizoram": ["Aizawl"],
-      "Nagaland": ["Kohima","Dimapur"],
-      "Odisha": ["Bhubaneswar","Cuttack","Rourkela"],
-      "Punjab": ["Chandigarh","Ludhiana","Amritsar","Jalandhar"],
-      "Rajasthan": ["Jaipur","Jodhpur","Udaipur","Kota"],
-      "Sikkim": ["Gangtok"],
-      "Tamil Nadu": ["Chennai","Coimbatore","Madurai","Tiruchirappalli"],
-      "Telangana": ["Hyderabad","Warangal","Karimnagar"],
-      "Tripura": ["Agartala"],
-      "Uttar Pradesh": ["Lucknow","Kanpur","Varanasi","Noida","Ghaziabad"],
-      "Uttarakhand": ["Dehradun","Haridwar"],
-      "West Bengal": ["Kolkata","Howrah","Durgapur","Siliguri"],
-      "Andaman and Nicobar Islands": ["Port Blair"],
-      "Chandigarh": ["Chandigarh"],
-      "Dadra and Nagar Haveli and Daman and Diu": ["Daman","Silvassa"],
-      "Delhi": ["New Delhi","Delhi"],
-      "Jammu and Kashmir": ["Srinagar","Jammu"],
-      "Ladakh": ["Leh","Kargil"],
-      "Lakshadweep": ["Kavaratti"],
-      "Puducherry": ["Puducherry"]
-    };
-
-    // preview data
     let previewData = null;
+    let nominatimAbort = null;
 
-    // Init on DOM load
     document.addEventListener('DOMContentLoaded', () => {
-      initDate();
       renderPrefixSelect();
-      populateStateDatalist();
+      setupPrefixListener();
+      populateStateSelect();
       setupEventListeners();
-      updateFullIdPreview();
+      setupAadharFormatter();
+
+      // Set today's date by default and display it (user can change)
+      const today = new Date();
+      const dateEl = document.getElementById('date');
+      dateEl.valueAsDate = today;
+      updateDateDisplay(today);
     });
 
-    function initDate(){
-      const d = new Date();
-      const dateInput = document.getElementById('date');
-      dateInput.valueAsDate = d;
-      updateDateDisplay(d);
-    }
-
+    /* Date handling */
     function updateDateDisplay(d){
+      if (!(d instanceof Date) || isNaN(d)) {
+        document.getElementById('dateText').textContent = 'DD MMM YYYY';
+        document.getElementById('date').value = '';
+        return;
+      }
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const dd = String(d.getDate()).padStart(2,'0');
       const mon = months[d.getMonth()];
       const yyyy = d.getFullYear();
-      document.getElementById('dateDisplay').value = `${dd} ${mon} ${yyyy}`;
-      // keep hidden date input in sync
-      const dateInput = document.getElementById('date');
-      dateInput.valueAsDate = d;
+      document.getElementById('dateText').textContent = `${dd} ${mon} ${yyyy}`;
+      document.getElementById('date').valueAsDate = d;
     }
 
-    // When native date changes, update displayed formatted text
+    // open native date picker for accessibility and mobile
+    const dateDisplayEl = document.getElementById('dateDisplay');
+    const calendarBtn = document.getElementById('calendarBtn');
+    function openNativeDatePicker(){
+      const dateEl = document.getElementById('date');
+      try {
+        if (typeof dateEl.showPicker === 'function') {
+          dateEl.showPicker();
+        } else {
+          dateEl.focus();
+          dateEl.click();
+        }
+      } catch {
+        dateEl.focus();
+        dateEl.click();
+      }
+    }
+    // Trigger picker when clicking display area or calendar icon or pressing Enter/Space while focused
+    dateDisplayEl.addEventListener('click', openNativeDatePicker);
+    calendarBtn.addEventListener('click', (e) => { e.stopPropagation(); openNativeDatePicker(); });
+    dateDisplayEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openNativeDatePicker();
+      }
+    });
     document.getElementById('date').addEventListener('change', (e) => {
-      const d = new Date(e.target.value);
-      if (!isNaN(d)) updateDateDisplay(d);
+      if (!e.target.value) { updateDateDisplay(null); return; }
+      updateDateDisplay(new Date(e.target.value));
     });
 
-    // click on display opens native date picker
-    document.getElementById('dateDisplay').addEventListener('click', () => {
-      document.getElementById('date').focus();
-      document.getElementById('date').click();
-    });
-
-    // Prefix functions
+    /* Prefix management */
     function renderPrefixSelect(){
-      const select = document.getElementById('prefixSelect');
-      select.innerHTML = state.prefixes.map(p => `<option value="${p}">${p}</option>`).join('');
-      select.innerHTML += `<option value="CUSTOM">${state.idPrefix === 'CUSTOM' ? state.customPrefix : 'Custom'}</option>`;
-      select.value = state.idPrefix === 'CUSTOM' ? 'CUSTOM' : (state.prefixes.includes(state.idPrefix) ? state.idPrefix : state.prefixes[0]);
-      select.addEventListener('change', (e) => {
-        if (e.target.value === 'CUSTOM'){
+      const sel = document.getElementById('prefixSelect');
+      sel.innerHTML = state.prefixes.map(p => `<option value="${p}">${p}</option>`).join('') +
+                      `<option value="CUSTOM">${state.idPrefix === 'CUSTOM' ? state.customPrefix || 'Custom' : 'Custom'}</option>`;
+      sel.value = state.idPrefix === 'CUSTOM' ? 'CUSTOM' : (state.prefixes.includes(state.idPrefix) ? state.idPrefix : state.prefixes[0]);
+      updateFullIdPreview();
+    }
+    function setupPrefixListener(){
+      const sel = document.getElementById('prefixSelect');
+      sel.addEventListener('change', (e) => {
+        if (e.target.value === 'CUSTOM') {
           const entered = prompt('Enter custom prefix (1-8 chars):', state.customPrefix || '');
-          if (entered && entered.trim().length > 0 && entered.trim().length <= 8){
+          if (entered && entered.trim().length > 0 && entered.trim().length <= 8) {
             state.customPrefix = entered.trim().toUpperCase();
             state.idPrefix = 'CUSTOM';
             renderPrefixSelect();
           } else {
             state.idPrefix = state.prefixes[0];
             renderPrefixSelect();
+            alert('Invalid prefix. Reverted to default.');
           }
         } else {
           state.idPrefix = e.target.value;
@@ -708,344 +742,180 @@
         updateFullIdPreview();
       });
     }
-
     function updateFullIdPreview(){
       const prefix = state.idPrefix === 'CUSTOM' ? state.customPrefix : state.idPrefix;
       document.getElementById('fullIdPreview').textContent = `Full ID: ${prefix}-${state.idNumber}`;
     }
 
-    // Populate state datalist
-    function populateStateDatalist(){
-      const dl = document.getElementById('stateList');
-      dl.innerHTML = Object.keys(india).map(s => `<option value="${s}">`).join('');
-      const stateInput = document.getElementById('stateInput');
-      stateInput.addEventListener('input', (e) => {
-        const st = e.target.value;
-        populateCityDatalist(st);
-      });
-      // on blur, if state matches a key set it, else empty cities
-      stateInput.addEventListener('change', (e) => {
-        populateCityDatalist(e.target.value);
+    /* Prefix modal */
+    function openPrefixModal(){ renderPrefixList(); document.getElementById('prefixModal').classList.add('show'); setTimeout(()=>document.getElementById('newPrefixInput').focus(),100); }
+    function closePrefixModal(){ document.getElementById('prefixModal').classList.remove('show'); }
+    function renderPrefixList(){
+      const el=document.getElementById('prefixList'); el.innerHTML='';
+      state.prefixes.forEach((p, idx) => {
+        const item=document.createElement('div'); item.className='prefix-item';
+        const input=document.createElement('input'); input.value=p; input.maxLength=8;
+        input.addEventListener('blur', ()=>editPrefix(idx,input.value));
+        // delete button with a trash icon for clarity
+        const del=document.createElement('button'); del.className='prefix-del';
+        del.title='Delete'; del.setAttribute('aria-label','Delete prefix');
+        del.innerText='🗑'; // changed delete icon
+        del.addEventListener('click', ()=>deletePrefix(idx));
+        item.appendChild(input); item.appendChild(del); el.appendChild(item);
       });
     }
+    function addPrefix(){
+      const v=document.getElementById('newPrefixInput').value.trim().toUpperCase();
+      if(!v||v.length>8){alert('Prefix must be 1-8 chars');return;}
+      if(state.prefixes.includes(v)){alert('Prefix exists');document.getElementById('newPrefixInput').value='';return;}
+      state.prefixes.push(v);
+      localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes));
+      renderPrefixSelect();
+      renderPrefixList();
+      updateFullIdPreview();
+      document.getElementById('newPrefixInput').value='';
+      // keep focus for quick additions
+      setTimeout(()=>document.getElementById('newPrefixInput').focus(),50);
+    }
+    function editPrefix(idx,val){
+      const up=val.trim().toUpperCase();
+      if(!up){alert('Cannot be empty'); renderPrefixList(); return;}
+      if(state.prefixes.some((x,i)=>x===up && i!==idx)){alert('That prefix exists'); renderPrefixList(); return;}
+      state.prefixes[idx]=up; localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes)); renderPrefixSelect();
+    }
+    function deletePrefix(idx){
+      if(state.prefixes.length===1){alert('At least one prefix must remain'); return;}
+      if(!confirm(`Delete prefix "${state.prefixes[idx]}"?`)) return;
+      const deleted=state.prefixes.splice(idx,1)[0];
+      localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes));
+      renderPrefixSelect(); renderPrefixList();
+      if(state.idPrefix===deleted) state.idPrefix=state.prefixes[0];
+      updateFullIdPreview();
+    }
 
-    function populateCityDatalist(stateName){
-      const cityDl = document.getElementById('cityList');
-      cityDl.innerHTML = '';
-      const cities = india[stateName];
-      if (cities && cities.length){
-        cityDl.innerHTML = cities.map(c => `<option value="${c}">`).join('');
-      } else {
-        // empty or generic placeholder - offer popular cities
-        const popular = ["Delhi","Mumbai","Bengaluru","Kolkata","Chennai","Hyderabad","Pune","Ahmedabad"];
-        cityDl.innerHTML = popular.map(c => `<option value="${c}">`).join('');
+    /* State & city handling */
+    function populateStateSelect(){
+      const stateSel = document.getElementById('stateSelect');
+      // Use full STATES list (requested)
+      stateSel.innerHTML = `<option value="">Select state</option>` + STATES.map(s => `<option value="${s}">${s}</option>`).join('');
+      // Ensure city input is plain (no datalist)
+      const cityInput = document.getElementById('cityInput');
+      cityInput.removeAttribute('list');
+      // If additional logic is needed when state changes, it can be added here, but per request we remove the city dropdown behaviour.
+    }
+
+    function populateCitySuggestions(stateName){
+      // Intentionally left empty: per request, city should be a plain text cell without dropdown.
+      // This function remains in case you want to extend behaviour later.
+      const input = document.getElementById('cityInput');
+      if (input) input.removeAttribute('list');
+    }
+
+    /* City deep search (optional) */
+    function openCitySearch(){ document.getElementById('citySearchModal').classList.add('show'); document.getElementById('citySearchInput').value=''; document.getElementById('citySearchResults').innerHTML=''; setTimeout(()=>document.getElementById('citySearchInput').focus(),100); }
+    function closeCitySearch(){ document.getElementById('citySearchModal').classList.remove('show'); document.getElementById('citySearchResults').innerHTML=''; if(nominatimAbort) nominatimAbort.abort(); }
+    async function searchPlacesByQuery(){
+      const term = document.getElementById('citySearchInput').value.trim();
+      const st = document.getElementById('stateSelect').value || '';
+      if (!term) { alert('Enter search term'); return; }
+      if (nominatimAbort) nominatimAbort.abort();
+      nominatimAbort = new AbortController(); const signal = nominatimAbort.signal;
+      const qParts = [term]; if (st) qParts.push(st); qParts.push('India');
+      const q = encodeURIComponent(qParts.join(', '));
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=200&q=${q}&accept-language=en`;
+      const resultsEl = document.getElementById('citySearchResults');
+      resultsEl.innerHTML = `<div class="text-muted">Searching...</div>`;
+      try {
+        const res = await fetch(url, { signal, headers: { 'Referer': location.origin } });
+        if (!res.ok) throw new Error('Nominatim error');
+        const items = await res.json();
+        if (!items || items.length === 0) { resultsEl.innerHTML = `<div class="text-muted">No results found.</div>`; return; }
+        resultsEl.innerHTML = items.map(it => {
+          const short = (it.display_name||'').split(',')[0];
+          const display = it.display_name||'';
+          const type = it.type||'';
+          return `<div class="search-result" data-name="${escapeHtml(short)}" data-full="${escapeHtml(display)}" onclick="selectCityFromSearch(this)">
+                    <div style="font-weight:700">${escapeHtml(short)}</div>
+                    <div class="text-muted" style="margin-top:6px;font-size:13px">${escapeHtml(display)} — ${escapeHtml(type)}</div>
+                  </div>`;
+        }).join('');
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        resultsEl.innerHTML = `<div class="text-muted">Search failed. Try again.</div>`;
+        console.error(err);
       }
     }
+    function selectCityFromSearch(el){
+      const name = el.getAttribute('data-name') || el.getAttribute('data-full');
+      if (!name) return;
+      document.getElementById('cityInput').value = name;
+      closeCitySearch();
+    }
 
-    // Button and input listeners
+    /* Aadhar formatter */
+    function setupAadharFormatter(){
+      const a = document.getElementById('aadhar');
+      a.addEventListener('input', (e) => {
+        const digits = e.target.value.replace(/\D/g,'').slice(0,12);
+        let groups = [];
+        for(let i=0;i<digits.length;i+=4) groups.push(digits.substr(i,4));
+        e.target.value = groups.join('-');
+      });
+      a.addEventListener('keydown', (e) => {
+        const allowed = ['Backspace','ArrowLeft','ArrowRight','Delete','Tab'];
+        if (allowed.includes(e.key)) return;
+        if (/^\d$/.test(e.key)) return;
+        e.preventDefault();
+      });
+    }
+
+    /* Loan/payment logic & UI */
     function setupEventListeners(){
-      // loan amount buttons
-      document.querySelectorAll('[data-amount]').forEach(btn => {
-        btn.addEventListener('click', () => setLoanAmount(Number(btn.dataset.amount)));
-      });
-      document.getElementById('loanAmountInput').addEventListener('input', (e) => {
-        const v = Number(e.target.value);
-        if (v > 0) setLoanAmount(v);
-      });
+      // loan amount presets
+      document.querySelectorAll('[data-amount]').forEach(btn => btn.addEventListener('click', () => setLoanAmount(Number(btn.dataset.amount))));
+      document.getElementById('loanAmountInput').addEventListener('input', (e)=> { const v=Number(e.target.value); if(v>0) setLoanAmount(v); });
 
-      // interest buttons
-      document.querySelectorAll('[data-interest]').forEach(btn => {
-        btn.addEventListener('click', () => setInterestRate(Number(btn.dataset.interest)));
-      });
+      // interest choices
+      document.querySelectorAll('[data-interest]').forEach(btn => btn.addEventListener('click', () => setInterestRate(Number(btn.dataset.interest))));
+      document.getElementById('interestRateInput').addEventListener('input', (e)=> { const v=Number(e.target.value); if(!isNaN(v)&&v>=0){ state.interestRate=v; updateInterestButtons(); calculateTotals(); }});
 
-      document.getElementById('interestRateInput').addEventListener('input', (e) => {
-        const v = Number(e.target.value);
-        if (!isNaN(v) && v >= 0){
-          state.interestRate = v;
-          updateInterestButtons();
-          calculateTotals();
-        }
-      });
+      // installment
+      document.querySelectorAll('[data-installment]').forEach(btn => btn.addEventListener('click', () => setInstallmentAmount(Number(btn.dataset.installment))));
 
-      // installment buttons
-      document.querySelectorAll('[data-installment]').forEach(btn => {
-        btn.addEventListener('click', () => setInstallmentAmount(Number(btn.dataset.installment)));
-      });
-
-      // payment type radios
-      document.querySelectorAll('input[name="paymentType"]').forEach(r => {
-        r.addEventListener('change', (e) => {
-          state.paymentType = e.target.value;
-          document.getElementById('displayFrequency').textContent = state.paymentType.charAt(0).toUpperCase() + state.paymentType.slice(1);
-        });
-      });
+      // payment type
+      document.querySelectorAll('input[name="paymentType"]').forEach(r => r.addEventListener('change',(e)=>{ state.paymentType=e.target.value; document.getElementById('displayFrequency').textContent = state.paymentType.charAt(0).toUpperCase()+state.paymentType.slice(1); }));
 
       // form submit
       document.getElementById('loanForm').addEventListener('submit', handleSubmit);
+
+      // modal close on backdrop click
+      document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
     }
 
-    function setLoanAmount(amount){
-      state.loanAmount = amount;
-      document.getElementById('loanAmountInput').value = amount;
-      document.querySelectorAll('[data-amount]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.amount) === amount));
-      const auto = calculateInterestRate(amount);
-      setInterestRate(auto);
-      document.getElementById('loanDetailsExtra').style.display = 'block';
-      document.getElementById('paymentPlanCard').style.display = 'block';
-      calculateTotals();
-    }
+    function setLoanAmount(amount){ state.loanAmount=amount; document.getElementById('loanAmountInput').value=amount; document.querySelectorAll('[data-amount]').forEach(b=>b.classList.toggle('active',Number(b.dataset.amount)===amount)); const auto=calculateInterestRate(amount); setInterestRate(auto); document.getElementById('loanDetailsExtra').style.display='block'; document.getElementById('paymentPlanCard').style.display='block'; calculateTotals(); }
+    function calculateInterestRate(amount){ if(amount<=5000) return 25; if(amount<=10000) return 20; if(amount<=20000) return 15; return 10; }
+    function setInterestRate(rate){ state.interestRate=rate; document.getElementById('interestRateInput').value=rate; updateInterestButtons(); calculateTotals(); }
+    function updateInterestButtons(){ document.querySelectorAll('[data-interest]').forEach(b=>b.classList.toggle('active',Number(b.dataset.interest)===state.interestRate)); }
+    function setInstallmentAmount(amount){ state.installmentAmount=amount; document.querySelectorAll('[data-installment]').forEach(b=>b.classList.toggle('active',Number(b.dataset.installment)===amount)); document.getElementById('displayInstallmentAmount').textContent=`₹${amount.toLocaleString()}`; document.getElementById('installmentSummary').style.display='block'; calculateTotals(); }
+    function calculateTotals(){ const loanAmount=state.loanAmount; const interestRate=state.interestRate; const commissionFee=Math.floor(loanAmount/5000)*100; const customerReceives=Math.max(0,loanAmount-commissionFee); const interestAmount=(loanAmount*interestRate)/100; const totalPayable=loanAmount+interestAmount; document.getElementById('commissionFee').textContent=`₹${commissionFee.toLocaleString()}`; document.getElementById('customerReceives').textContent=`₹${customerReceives.toLocaleString()}`; document.getElementById('summaryLoanAmount').textContent=`₹${loanAmount.toLocaleString()}`; document.getElementById('interestLabel').textContent=`Interest (${interestRate}%):`; document.getElementById('interestAmount').textContent=`₹${interestAmount.toLocaleString()}`; document.getElementById('totalPayable').textContent=`₹${totalPayable.toLocaleString()}`; document.getElementById('interestNote').textContent=`Auto-suggested: ${calculateInterestRate(loanAmount)}%`; if(state.installmentAmount>0){ const installments=Math.ceil(totalPayable/state.installmentAmount); document.getElementById('numberOfInstallments').textContent=installments; } }
 
-    function calculateInterestRate(amount){
-      if (amount <= 5000) return 25;
-      if (amount <= 10000) return 20;
-      if (amount <= 20000) return 15;
-      return 10;
-    }
+    /* Form handling */
+    function handleSubmit(e){ e.preventDefault(); if(!state.loanAmount||state.loanAmount<=0){ alert('Please enter/select a loan amount'); return; } const name=document.getElementById('name').value.trim(); if(!name){ alert('Please enter customer name'); return; } const sel=document.getElementById('prefixSelect').value; if(sel==='CUSTOM') state.idPrefix=state.customPrefix||'CUS'; else state.idPrefix=sel; const city=document.getElementById('cityInput').value.trim(); const dateVal=document.getElementById('date').value||''; const data={ customerId:`${state.idPrefix === 'CUSTOM' ? state.customPrefix : state.idPrefix}-${state.idNumber}`, name, parentName:document.getElementById('parentName').value.trim(), phone:document.getElementById('phone').value.trim(), aadhar:document.getElementById('aadhar').value.trim(), address:document.getElementById('address').value.trim(), state:document.getElementById('stateSelect').value, city, date:dateVal, loanAmount:state.loanAmount, commissionFee:Math.floor(state.loanAmount/5000)*100, customerReceives:Math.max(0,state.loanAmount-Math.floor(state.loanAmount/5000)*100), interestRate:state.interestRate, interestAmount:(state.loanAmount*state.interestRate)/100, totalPayable:state.loanAmount + (state.loanAmount*state.interestRate)/100, paymentType:state.paymentType, installmentAmount:state.installmentAmount, numberOfInstallments: state.installmentAmount>0 ? Math.ceil((state.loanAmount + (state.loanAmount*state.interestRate)/100)/state.installmentAmount) : 0 }; previewData = data; showPreview(); }
 
-    function setInterestRate(rate){
-      state.interestRate = rate;
-      document.getElementById('interestRateInput').value = rate;
-      updateInterestButtons();
-      calculateTotals();
-    }
+    function showPreview(){ document.getElementById('previewCustomerId').textContent=previewData.customerId; document.getElementById('previewName').textContent=previewData.name; document.getElementById('previewParentName').textContent=previewData.parentName; document.getElementById('previewPhone').textContent=previewData.phone; document.getElementById('previewAadhar').textContent=previewData.aadhar; document.getElementById('previewAddress').textContent=previewData.address; document.getElementById('previewState').textContent=previewData.state; document.getElementById('previewCity').textContent=previewData.city; document.getElementById('previewDate').textContent=previewData.date||'—'; document.getElementById('previewLoanAmount').textContent=`₹${previewData.loanAmount.toLocaleString()}`; document.getElementById('previewCommissionFee').textContent=`₹${previewData.commissionFee.toLocaleString()}`; document.getElementById('previewCustomerReceives').textContent=`₹${previewData.customerReceives.toLocaleString()}`; document.getElementById('previewInterestRate').textContent=`${previewData.interestRate}%`; document.getElementById('previewInterestAmount').textContent=`₹${previewData.interestAmount.toLocaleString()}`; document.getElementById('previewTotalPayable').textContent=`₹${previewData.totalPayable.toLocaleString()}`; document.getElementById('previewPaymentType').textContent=previewData.paymentType; document.getElementById('previewInstallmentAmount').textContent=previewData.installmentAmount>0?`₹${previewData.installmentAmount.toLocaleString()}`:'—'; document.getElementById('previewNumberOfInstallments').textContent=previewData.numberOfInstallments; document.getElementById('form-section').classList.add('hidden'); document.getElementById('preview-section').classList.add('show'); window.scrollTo({top:0,behavior:'smooth'}); }
 
-    function updateInterestButtons(){
-      document.querySelectorAll('[data-interest]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.interest) === state.interestRate));
-    }
+    function goBack(){ document.getElementById('preview-section').classList.remove('show'); document.getElementById('form-section').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
 
-    function setInstallmentAmount(amount){
-      state.installmentAmount = amount;
-      document.querySelectorAll('[data-installment]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.installment) === amount));
-      document.getElementById('displayInstallmentAmount').textContent = `₹${amount.toLocaleString()}`;
-      document.getElementById('installmentSummary').style.display = 'block';
-      calculateTotals();
-    }
+    async function confirmRegistration(){ const btn=document.getElementById('confirmBtn'); btn.disabled=true; btn.textContent='Saving...'; const data={...previewData, savedAt:Date.now()}; const safeKey=data.customerId.replace(/[.$#[\]/]/g,'_'); try{ await database.ref('customers/'+safeKey).set(data); await database.ref('registrations').push({...data, pushedAt:Date.now()}); state.idNumber++; localStorage.setItem('sr_idNumber', state.idNumber); updateFullIdPreview(); document.getElementById('confirmationMessage').textContent=`Customer ${data.customerId} saved successfully.`; document.getElementById('confirmationModal').classList.add('show'); }catch(err){ console.error('Firebase save error',err); alert('Failed to save to Firebase.'); }finally{ btn.disabled=false; btn.textContent='✓ Confirm Registration'; } }
 
-    function calculateTotals(){
-      const loanAmount = state.loanAmount;
-      const interestRate = state.interestRate;
-      const commissionFee = Math.floor(loanAmount / 5000) * 100;
-      const customerReceives = Math.max(0, loanAmount - commissionFee);
-      const interestAmount = (loanAmount * interestRate) / 100;
-      const totalPayable = loanAmount + interestAmount;
+    function handleDone(){ document.getElementById('confirmationModal').classList.remove('show'); resetForm(); goBack(); }
 
-      document.getElementById('commissionFee').textContent = `₹${commissionFee.toLocaleString()}`;
-      document.getElementById('customerReceives').textContent = `₹${customerReceives.toLocaleString()}`;
-      document.getElementById('summaryLoanAmount').textContent = `₹${loanAmount.toLocaleString()}`;
-      document.getElementById('interestLabel').textContent = `Interest (${interestRate}%):`;
-      document.getElementById('interestAmount').textContent = `₹${interestAmount.toLocaleString()}`;
-      document.getElementById('totalPayable').textContent = `₹${totalPayable.toLocaleString()}`;
+    function resetForm(){ document.getElementById('loanForm').reset(); state.loanAmount=0; state.interestRate=0; state.installmentAmount=0; state.paymentType='monthly'; document.getElementById('loanDetailsExtra').style.display='none'; document.getElementById('paymentPlanCard').style.display='none'; document.getElementById('installmentSummary').style.display='none'; document.querySelectorAll('[data-amount],[data-interest],[data-installment]').forEach(b=>b.classList.remove('active')); document.getElementById('displayFrequency').textContent='Monthly'; previewData=null; document.getElementById('stateSelect').value=''; document.getElementById('cityInput').value=''; const today = new Date(); document.getElementById('date').valueAsDate = today; updateDateDisplay(today); }
 
-      document.getElementById('interestNote').textContent = `Auto-suggested: ${calculateInterestRate(loanAmount)}% (≤₹5000:25%, ₹5001-10000:20%, ₹10001-20000:15%, >₹20000:10%)`;
+    function handleNewLoan(){ resetForm(); if(document.getElementById('preview-section').classList.contains('show')) goBack(); window.scrollTo({top:0,behavior:'smooth'}); }
 
-      if (state.installmentAmount > 0){
-        const installments = Math.ceil(totalPayable / state.installmentAmount);
-        document.getElementById('numberOfInstallments').textContent = installments;
-      }
-    }
-
-    // Prefix modal functions
-    function openPrefixModal(){
-      renderPrefixList();
-      document.getElementById('prefixModal').classList.add('show');
-      setTimeout(()=> document.getElementById('newPrefixInput').focus(), 120);
-    }
-    function closePrefixModal(){
-      document.getElementById('prefixModal').classList.remove('show');
-    }
-
-    function renderPrefixList(){
-      const el = document.getElementById('prefixList');
-      el.innerHTML = state.prefixes.map((p, idx) => `
-        <div class="prefix-item">
-          <input value="${p}" maxlength="8" onblur="editPrefix(${idx}, this.value)" />
-          <button class="prefix-del" onclick="deletePrefix(${idx})">🗑</button>
-        </div>
-      `).join('');
-    }
-
-    function addPrefix(){
-      const v = document.getElementById('newPrefixInput').value.trim().toUpperCase();
-      if (!v || v.length > 8){ alert('Prefix must be 1-8 chars'); return; }
-      if (state.prefixes.includes(v)){ alert('Prefix exists'); document.getElementById('newPrefixInput').value=''; return; }
-      state.prefixes.push(v);
-      savePrefixes();
-      renderPrefixSelect();
-      renderPrefixList();
-      updateFullIdPreview();
-      document.getElementById('newPrefixInput').value = '';
-    }
-
-    function editPrefix(idx, val){
-      const up = val.trim().toUpperCase();
-      if (!up){ alert('Prefix cannot be empty'); renderPrefixList(); return; }
-      if (state.prefixes.some((x,i)=>x===up && i!==idx)){ alert('That prefix exists'); renderPrefixList(); return; }
-      state.prefixes[idx] = up;
-      savePrefixes();
-      renderPrefixSelect();
-    }
-
-    function deletePrefix(idx){
-      if (state.prefixes.length === 1){ alert('At least one prefix must remain'); return; }
-      if (!confirm(`Delete prefix "${state.prefixes[idx]}"?`)) return;
-      const deleted = state.prefixes.splice(idx,1)[0];
-      savePrefixes();
-      renderPrefixSelect();
-      renderPrefixList();
-      if (state.idPrefix === deleted) state.idPrefix = state.prefixes[0];
-      updateFullIdPreview();
-    }
-
-    function savePrefixes(){ localStorage.setItem('sr_prefixes', JSON.stringify(state.prefixes)); }
-
-    // Custom modals functions (loan/interest/installment)
-    function openCustomLoanModal(){ document.getElementById('customLoanModal').classList.add('show'); setTimeout(()=>document.getElementById('customLoanInput').focus(),100); }
-    function closeCustomLoanModal(){ document.getElementById('customLoanModal').classList.remove('show'); document.getElementById('customLoanInput').value = ''; }
-    function submitCustomLoan(){ const v=Number(document.getElementById('customLoanInput').value); if (!v || v<=0){ alert('Enter valid amount'); return; } setLoanAmount(v); closeCustomLoanModal(); }
-
-    function openCustomInterestModal(){ document.getElementById('customInterestModal').classList.add('show'); setTimeout(()=>document.getElementById('customInterestInput').focus(),100); }
-    function closeCustomInterestModal(){ document.getElementById('customInterestModal').classList.remove('show'); document.getElementById('customInterestInput').value = ''; }
-    function submitCustomInterest(){ const v=Number(document.getElementById('customInterestInput').value); if (isNaN(v) || v<0){ alert('Enter valid interest'); return; } setInterestRate(v); closeCustomInterestModal(); }
-
-    function openCustomInstallmentModal(){ document.getElementById('customInstallmentModal').classList.add('show'); setTimeout(()=>document.getElementById('customInstallmentInput').focus(),100); }
-    function closeCustomInstallmentModal(){ document.getElementById('customInstallmentModal').classList.remove('show'); document.getElementById('customInstallmentInput').value=''; }
-    function submitCustomInstallment(){ const v=Number(document.getElementById('customInstallmentInput').value); if (!v || v<=0){ alert('Enter valid installment'); return; } setInstallmentAmount(v); closeCustomInstallmentModal(); }
-
-    // Form submit -> preview
-    function handleSubmit(e){
-      e.preventDefault();
-      if (!state.loanAmount || state.loanAmount <= 0){ alert('Please enter/select a loan amount'); return; }
-      const name = document.getElementById('name').value.trim();
-      if (!name){ alert('Please enter customer name'); return; }
-
-      // determine selected prefix value (select change handled on render)
-      const prefixSelect = document.getElementById('prefixSelect');
-      const sel = prefixSelect.value;
-      if (sel === 'CUSTOM') state.idPrefix = state.customPrefix || 'CUS';
-      else state.idPrefix = sel;
-
-      const loanAmount = state.loanAmount;
-      const interestRate = state.interestRate;
-      const commissionFee = Math.floor(loanAmount / 5000) * 100;
-      const customerReceives = Math.max(0, loanAmount - commissionFee);
-      const interestAmount = (loanAmount * interestRate) / 100;
-      const totalPayable = loanAmount + interestAmount;
-      const numberOfInstallments = state.installmentAmount > 0 ? Math.ceil(totalPayable / state.installmentAmount) : 0;
-
-      previewData = {
-        customerId: `${state.idPrefix === 'CUSTOM' ? state.customPrefix : state.idPrefix}-${state.idNumber}`,
-        name,
-        parentName: document.getElementById('parentName').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
-        aadhar: document.getElementById('aadhar').value.trim(),
-        address: document.getElementById('address').value.trim(),
-        state: document.getElementById('stateInput').value.trim(),
-        city: document.getElementById('cityInput').value.trim(),
-        date: document.getElementById('date').value,
-        loanAmount,
-        commissionFee,
-        customerReceives,
-        interestRate,
-        interestAmount,
-        totalPayable,
-        paymentType: state.paymentType,
-        installmentAmount: state.installmentAmount,
-        numberOfInstallments
-      };
-
-      showPreview();
-    }
-
-    function showPreview(){
-      // fill preview fields (note: user asked to not show preview date cell; so preview does not show date separately)
-      document.getElementById('previewCustomerId').textContent = previewData.customerId;
-      document.getElementById('previewName').textContent = previewData.name;
-      document.getElementById('previewParentName').textContent = previewData.parentName;
-      document.getElementById('previewPhone').textContent = previewData.phone;
-      document.getElementById('previewAadhar').textContent = previewData.aadhar;
-      document.getElementById('previewAddress').textContent = previewData.address;
-      document.getElementById('previewState').textContent = previewData.state;
-      document.getElementById('previewCity').textContent = previewData.city;
-
-      document.getElementById('previewLoanAmount').textContent = `₹${previewData.loanAmount.toLocaleString()}`;
-      document.getElementById('previewCommissionFee').textContent = `₹${previewData.commissionFee.toLocaleString()}`;
-      document.getElementById('previewCustomerReceives').textContent = `₹${previewData.customerReceives.toLocaleString()}`;
-      document.getElementById('previewInterestRate').textContent = `${previewData.interestRate}%`;
-      document.getElementById('previewInterestAmount').textContent = `₹${previewData.interestAmount.toLocaleString()}`;
-      document.getElementById('previewTotalPayable').textContent = `₹${previewData.totalPayable.toLocaleString()}`;
-
-      document.getElementById('previewPaymentType').textContent = previewData.paymentType;
-      document.getElementById('previewInstallmentAmount').textContent = previewData.installmentAmount > 0 ? `₹${previewData.installmentAmount.toLocaleString()}` : '—';
-      document.getElementById('previewNumberOfInstallments').textContent = previewData.numberOfInstallments;
-
-      document.getElementById('form-section').classList.add('hidden');
-      document.getElementById('preview-section').classList.add('show');
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    function goBack(){
-      document.getElementById('preview-section').classList.remove('show');
-      document.getElementById('form-section').classList.remove('hidden');
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    async function confirmRegistration(){
-      const btn = document.getElementById('confirmBtn');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-
-      const dataToSave = {...previewData, savedAt: Date.now()};
-
-      // sanitize key
-      const safeKey = dataToSave.customerId.replace(/[.$#[\]/]/g, '_');
-
-      try {
-        await database.ref('customers/' + safeKey).set(dataToSave);
-        await database.ref('registrations').push({...dataToSave, pushedAt: Date.now() });
-
-        // increment ID and persist
-        state.idNumber++;
-        localStorage.setItem('sr_idNumber', state.idNumber);
-        updateFullIdPreview();
-
-        document.getElementById('confirmationMessage').textContent = `Customer ${dataToSave.customerId} saved successfully.`;
-        document.getElementById('confirmationModal').classList.add('show');
-      } catch (err) {
-        console.error('Firebase save error', err);
-        alert('Failed to save to Firebase. Check console for details.');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '✓ Confirm Registration';
-      }
-    }
-
-    function handleDone(){
-      document.getElementById('confirmationModal').classList.remove('show');
-      resetForm();
-      goBack();
-    }
-
-    function resetForm(){
-      document.getElementById('loanForm').reset();
-      state.loanAmount = 0; state.interestRate = 0; state.installmentAmount = 0; state.paymentType = 'monthly';
-      document.getElementById('loanAmountInput').value = '';
-      document.getElementById('interestRateInput').value = '';
-      document.getElementById('loanDetailsExtra').style.display = 'none';
-      document.getElementById('paymentPlanCard').style.display = 'none';
-      document.getElementById('installmentSummary').style.display = 'none';
-      document.querySelectorAll('[data-amount], [data-interest], [data-installment]').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('displayFrequency').textContent = 'Monthly';
-      previewData = null;
-      initDate();
-    }
-
-    function handleNewLoan(){
-      if (document.getElementById('preview-section').classList.contains('show')) goBack();
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    // Expose small helpers for console
-    window._sr = {state, setLoanAmount, setInterestRate, setInstallmentAmount, calculateTotals};
+    /* Utilities */
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   </script>
 </body>
 </html>
