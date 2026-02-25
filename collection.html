@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>SR Finance — Money Collection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    :root{--bg:#071017;--surface:#0d1a24;--text:#e6f0f6;--muted:#7a8a99;--blue:#0b5ed7;--blue2:#084ab0;--green:#27c48c;--red:#ff6b6b;--warn:#f0a500;--orange:#ff8c42;--purple:#a855f7;--cyan:#22d3ee;--border:rgba(255,255,255,0.04);--glass:rgba(255,255,255,0.02)}
+    html,body{height:100%}
+    body{background:linear-gradient(180deg,var(--bg),#021018 160%);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.5;padding-bottom:80px;font-size:15px}
+    header{position:sticky;top:0;z-index:80;background:linear-gradient(90deg,rgba(3,8,12,.97),rgba(7,18,24,.97));border-bottom:1px solid var(--border);backdrop-filter:blur(12px);padding:12px 16px;box-shadow:0 6px 24px rgba(3,8,12,.6)}
+    .hdr{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text);font-size:16px;flex-shrink:0}
+    .brand h1{font-size:16px;margin:0;font-weight:700}.brand p{margin:0;color:var(--muted);font-size:12px}
+    .page{max-width:700px;margin:12px auto;padding:0 12px}
+    .cbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:rgba(11,94,215,.06);border:1px solid rgba(11,94,215,.1);margin-bottom:14px}
+    .cav{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:12px;flex-shrink:0}
+    .cnm{font-size:13px;font-weight:700;color:var(--blue)}.cuid{font-size:10px;color:var(--muted)}
+    .top-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--text);cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;min-height:36px;transition:all .15s ease}
+    .chip:active{transform:scale(.95)}
+    .chip.active{background:linear-gradient(135deg,var(--blue),var(--blue2));border-color:transparent;color:#fff}
+    .chip.rp{background:rgba(168,85,247,.12);color:var(--purple);border-color:rgba(168,85,247,.15)}
+    .chip.dl{background:rgba(39,196,140,.12);color:var(--green);border-color:rgba(39,196,140,.15)}
+    .dfr{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+    .dc{padding:7px 11px;border-radius:9px;border:1px solid rgba(255,255,255,.06);background:transparent;color:var(--muted);font-weight:600;font-size:11px;cursor:pointer;font-family:inherit;min-height:32px;transition:all .15s ease;display:inline-flex;flex-direction:column;align-items:center;gap:1px}
+    .dc .dcl{font-size:11px}.dc .dcd{font-size:9px;color:rgba(122,138,153,.6)}
+    .dc.active{background:rgba(11,94,215,.12);color:var(--blue);border-color:rgba(11,94,215,.2)}
+    .dc:active{transform:scale(.95)}
+    .cdr{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    .cdr input{padding:8px 10px;border-radius:9px;background:var(--glass);border:1px solid rgba(255,255,255,.06);color:var(--text);font-size:12px;font-family:inherit;min-height:34px}
+    .cdr input:focus{outline:none;border-color:rgba(11,94,215,.4)}
+    .sstrip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .ss{background:linear-gradient(180deg,var(--surface),#071422);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.5);cursor:pointer;transition:all .15s ease}
+    .ss:active{transform:scale(.97)}.ss.act{box-shadow:0 0 0 2px rgba(255,255,255,.15)}
+    .ss .sv{font-size:18px;font-weight:800;margin:2px 0}.ss .sl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+    .ss.green .sv{color:var(--green)}.ss.green.act{border-color:var(--green)}
+    .ss.blue .sv{color:var(--blue)}.ss.blue.act{border-color:var(--blue)}
+    .ss.red .sv{color:var(--red)}.ss.red.act{border-color:var(--red)}
+    .stit{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .ltabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .lt{border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--text);padding:9px 14px;border-radius:12px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s ease;min-height:40px;display:flex;align-items:center;gap:5px}
+    .lt:active{transform:scale(.97)}
+    .lt.active{background:linear-gradient(135deg,var(--blue),var(--blue2));border-color:transparent;color:#fff}
+    .lt .tc{background:rgba(255,255,255,.15);padding:2px 7px;border-radius:7px;font-size:11px;font-weight:700}
+    .lt.active .tc{background:rgba(255,255,255,.25)}
+    .swp{position:relative;margin-bottom:12px}
+    .sb{width:100%;padding:11px 14px 11px 40px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,.06);color:var(--text);font-size:14px;font-family:inherit;min-height:44px}
+    .sb:focus{outline:none;border-color:rgba(11,94,215,.4)}
+    .sb::placeholder{color:rgba(230,240,246,.25)}
+    .swp .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+    .lc{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600}.lc .cn{color:var(--blue);font-weight:800}
+    .cl{display:flex;flex-direction:column;gap:12px}
+    /* Card */
+    .cc{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
+    .cc.paid-today{border-left:4px solid var(--green)}
+    .cc.not-paid{border-left:4px solid var(--warn)}
+    .cc.overdue{border-left:4px solid var(--red)}
+    .cc.completed{border-left:4px solid var(--purple)}
+    .cm{padding:14px 14px 10px;display:flex;flex-direction:column;gap:8px}
+    .ct{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .ci{flex:1;min-width:0}
+    .cn2{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+    .pm{display:inline-flex;align-items:center;gap:3px;flex-shrink:0}.pm .ps{color:var(--green);font-size:13px}.pm .pt{font-size:9px;color:var(--green);font-weight:700;background:rgba(39,196,140,.15);padding:2px 6px;border-radius:4px}
+    .os{color:var(--red);font-size:13px;flex-shrink:0}
+    .cm2{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:3px}
+    .cid{font-size:12px;color:var(--blue);font-weight:600}
+    .csd{font-size:10px;color:rgba(122,138,153,.6);margin-top:1px}
+    .badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+    .b-pd{background:rgba(39,196,140,.12);color:var(--green)}.b-np{background:rgba(240,165,0,.12);color:var(--warn)}.b-od{background:rgba(255,107,107,.12);color:var(--red)}.b-dn{background:rgba(168,85,247,.12);color:var(--purple)}.b-wk{background:rgba(34,211,238,.1);color:var(--cyan)}.b-mo{background:rgba(11,94,215,.1);color:var(--blue)}.b-lc{background:rgba(255,140,66,.12);color:var(--orange);font-size:8px}.b-user{background:rgba(11,94,215,.08);color:var(--blue);font-size:8px}
+    .ca{display:flex;gap:5px;align-items:center;flex-shrink:0}
+    .ib{width:36px;height:36px;border-radius:10px;border:1px solid rgba(11,94,215,.15);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s ease;background:rgba(11,94,215,.08);color:var(--blue)}
+    .ib:active{transform:scale(.93)}
+    .cpg{display:flex;flex-direction:column;gap:4px}
+    .pr{display:flex;justify-content:space-between;font-size:12px}.prl{color:var(--muted)}.prv{font-weight:700}.prv.g{color:var(--green)}.prv.o{color:var(--warn)}
+    .pbw{width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+    .pb{height:100%;border-radius:3px;min-width:2px}.pb.green{background:linear-gradient(90deg,var(--green),#20e89a)}.pb.orang{background:linear-gradient(90deg,var(--warn),var(--orange))}.pb.red{background:linear-gradient(90deg,var(--red),#ff4444)}
+    .pbp{font-size:10px;font-weight:700;text-align:right;margin-top:1px}
+    .cola{display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:11px;margin-top:2px}.cola .cl2{color:var(--muted)}.cola .cv2{font-weight:800;color:var(--green)}
+    .compbox{padding:10px;border-radius:10px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.1);text-align:center;margin-top:2px}
+    .compbox .ctxt{font-size:13px;font-weight:700;color:var(--purple);margin-bottom:6px}
+    .nlb{width:100%;padding:9px 14px;border:none;cursor:pointer;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font-weight:700;font-size:13px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;min-height:38px;transition:all .15s ease}
+    .nlb:active{transform:scale(.97)}
+    .cbot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 14px 12px}
+    .tb{padding:8px 6px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;transition:all .15s ease;display:flex;align-items:center;justify-content:center;gap:4px;min-height:34px}
+    .tb:active{transform:scale(.95)}
+    .tb.pay{background:rgba(39,196,140,.1);color:var(--green);border:1px solid rgba(39,196,140,.15)}
+    .tb.od{background:rgba(255,107,107,.08);color:var(--red);border:1px solid rgba(255,107,107,.12)}
+    .tb.clr{background:rgba(39,196,140,.08);color:var(--green);border:1px solid rgba(39,196,140,.12)}
+    .tb.hist{background:rgba(11,94,215,.08);color:var(--blue);border:1px solid rgba(11,94,215,.12)}
+    .ph{display:none;background:rgba(0,0,0,.15);padding:14px;border-top:1px solid rgba(255,255,255,.03)}.ph.show{display:block}
+    .phtl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:700}
+    .phi{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);margin-bottom:5px}.phi:last-of-type{margin-bottom:0}
+    .phd{font-size:13px;font-weight:600}.phti{font-size:10px;color:var(--muted)}
+    .phr{display:flex;align-items:center;gap:5px}.pha{font-size:14px;font-weight:700;color:var(--green)}
+    .phx{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;background:transparent;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px}.phx:active{transform:scale(.9);background:rgba(255,107,107,.1)}
+    .phe{text-align:center;color:var(--muted);font-size:12px;padding:14px}
+    .dgr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .di{padding:10px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.03);position:relative}
+    .di .dll{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .di .dvl{font-size:14px;font-weight:600;margin-top:3px;word-break:break-word;padding-right:26px}
+    .di.full{grid-column:1/-1}
+    .cpb2{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:7px;border:none;cursor:pointer;background:rgba(11,94,215,.1);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px}.cpb2:active{transform:scale(.9)}.cpb2.copied{background:rgba(39,196,140,.15);color:var(--green)}
+    .ds{background:rgba(11,94,215,.06);border:1px solid rgba(11,94,215,.1);border-radius:14px;padding:14px;margin-bottom:14px}
+    .dsr{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}.dsr+.dsr{border-top:1px solid rgba(255,255,255,.03)}.dsr .dsl{color:var(--muted)}.dsr .dsv{font-weight:700}
+    /* Report - for screenshot: compact, clean */
+    #rpCap{background:#071017;padding:14px;border-radius:14px;font-family:'Inter',sans-serif;color:#e6f0f6}
+    #rpCap *{font-family:'Inter',sans-serif!important;line-height:1.3!important}
+    .rt{width:100%;border-collapse:collapse;font-size:11px;margin:6px 0;table-layout:fixed}
+    .rt th{text-align:left;padding:5px 4px;color:#7a8a99;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}
+    .rt td{padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.03);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    /* Phone icon in report - clickable but hidden in screenshot */
+    .rp-call{cursor:pointer;font-size:11px;color:#0b5ed7;text-decoration:none;display:inline-block}
+    .rsec{margin-bottom:10px}
+    .rst{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.05)}
+    /* New loan form */
+    .nlf{margin-bottom:10px}.nlf label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
+    .nlf input,.nlf select,.nlf textarea{width:100%;padding:12px 14px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,.06);color:var(--text);font-size:14px;min-height:44px;font-family:inherit}
+    .nlf input:focus,.nlf select:focus,.nlf textarea:focus{outline:none;border-color:rgba(11,94,215,.4)}
+    .nlf textarea{min-height:50px;resize:vertical}.nlf select{appearance:auto}
+    .nla{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+    .nlab{padding:7px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--text);cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;min-height:34px;transition:all .15s ease}
+    .nlab:active{transform:scale(.95)}.nlab.active{background:linear-gradient(135deg,var(--blue),var(--blue2));border-color:transparent;color:#fff}
+    .nls{background:rgba(11,94,215,.06);border:1px solid rgba(11,94,215,.1);border-radius:12px;padding:12px;margin:12px 0}
+    .nls .nsr{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}.nls .nsr+.nsr{border-top:1px solid rgba(255,255,255,.03)}
+    .btn{border:none;cursor:pointer;font-weight:700;border-radius:12px;padding:12px 16px;font-family:inherit;font-size:14px;transition:all .15s ease;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+    .btn:active{transform:scale(.97)}
+    .bp{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}.bs{background:linear-gradient(135deg,var(--green),#1fa872);color:#fff}.bg{background:transparent;border:1px solid var(--border);color:var(--text)}.bd{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.15)}.bpu{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.15)}
+    .bsm{padding:8px 12px;font-size:12px;min-height:36px;border-radius:10px}.bf{width:100%}
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:flex-end;justify-content:center;padding:0}
+    .modal.show{display:flex}
+    .mc{width:100%;max-width:600px;background:linear-gradient(180deg,var(--surface),#071422);border-radius:20px 20px 0 0;padding:20px 16px 32px;border:1px solid var(--border);max-height:90vh;overflow-y:auto}
+    @media(min-width:520px){.modal{align-items:center;padding:20px}.mc{border-radius:20px;max-height:85vh}}
+    .mhd{width:40px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 14px}
+    .mt2{font-weight:800;color:var(--text);margin-bottom:14px;font-size:17px;text-align:center}
+    .mi{width:100%;padding:13px 14px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,.06);color:var(--text);margin-bottom:10px;font-size:15px;min-height:46px;font-family:inherit}.mi:focus{outline:none;border-color:rgba(11,94,215,.4)}
+    .ml{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px}
+    .ma{display:flex;gap:8px;margin-top:14px}.ma .btn{flex:1}
+    .nd{text-align:center;padding:30px 20px;color:var(--muted)}.nd .ni{font-size:36px;margin-bottom:6px}.nd .nt{font-size:13px}
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .3s ease;pointer-events:none}.toast.show{opacity:1}
+    @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal.show .mc{animation:slideUp .25s ease}
+  </style>
+</head>
+<body>
+  <header><div class="hdr"><div class="brand"><div class="logo">SF</div><div><h1>SR Finance</h1><p>Money Collection</p></div></div><a href="index.html" class="btn bsm bp" style="text-decoration:none;font-size:11px">+ New Loan</a></div></header>
+  <main class="page">
+    <div class="cbar"><div class="cav" id="cAv">U1</div><div><div class="cnm" id="cNm">User: 01</div><div class="cuid" id="cUid">Collector</div></div></div>
+    <div class="top-row"><button class="chip active" id="cAll" onclick="sPT('all')">All</button><button class="chip" id="cWk" onclick="sPT('weekly')">📅 Weekly</button><button class="chip" id="cMo" onclick="sPT('monthly')">🗓 Monthly</button><div style="flex:1"></div><button class="chip rp" onclick="openRp()">📊 Reports</button><button class="chip dl" onclick="openDL()">⬇ Export</button></div>
+    <div class="dfr"><button class="dc active" data-df="today" onclick="sDF('today')"><span class="dcl">Today</span><span class="dcd" id="dfT"></span></button><button class="dc" data-df="yesterday" onclick="sDF('yesterday')"><span class="dcl">Yesterday</span><span class="dcd" id="dfY"></span></button><button class="dc" data-df="last7" onclick="sDF('last7')"><span class="dcl">Last 7 Days</span><span class="dcd" id="dfL"></span></button><button class="dc" data-df="custom" onclick="sDF('custom')"><span class="dcl">Custom</span></button><button class="dc" data-df="month" onclick="sDF('month')"><span class="dcl">Month</span></button></div>
+    <div class="cdr" id="cdR" style="display:none;margin-bottom:14px"><input type="date" id="cdF"/><span style="color:var(--muted);font-size:12px">to</span><input type="date" id="cdT"/><button class="btn bsm bp" onclick="aCD()">Apply</button></div>
+    <div class="cdr" id="mpR" style="display:none;margin-bottom:14px"><input type="month" id="cMP"/><button class="btn bsm bp" onclick="aMF()">Apply</button></div>
+    <div class="sstrip"><div class="ss green" id="ssC" onclick="sF('collected')"><div class="sv" id="ssCV">₹0</div><div class="sl">Collected</div></div><div class="ss blue" id="ssP" onclick="sF('paid')"><div class="sv" id="ssPV">0</div><div class="sl">Paid ✅</div></div><div class="ss red" id="ssN" onclick="sF('notpaid')"><div class="sv" id="ssNV">0</div><div class="sl">Not Paid ⏳</div></div></div>
+    <div class="stit">📍 Locations</div>
+    <div class="ltabs" id="lT"></div>
+    <div class="swp"><svg class="si" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" class="sb" id="sB" placeholder="Search name, ID, phone..."/></div>
+    <div class="lc" id="lC" style="display:none"></div>
+    <div class="cl" id="cL"><div class="nd"><div class="ni">💰</div><div class="nt">Select a location</div></div></div>
+  </main>
+  <div class="toast" id="toast"></div>
+
+  <div id="apM" class="modal"><div class="mc"><div class="mhd"></div><div class="mt2">💰 Add Payment</div><div id="apI" style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:12px"></div><label class="ml">Date</label><input type="date" id="apD" class="mi"/><label class="ml">Amount (₹)</label><input type="number" id="apA" class="mi" placeholder="Enter amount" inputmode="numeric"/><div class="ma"><button class="btn bs" onclick="savePay()">💰 Add</button><button class="btn bg" onclick="cM('apM')">Cancel</button></div></div></div>
+  <div id="dpM" class="modal"><div class="mc" style="text-align:center"><div class="mhd"></div><div style="font-size:36px;margin-bottom:8px">⚠️</div><div class="mt2">Delete Payment?</div><p id="dpI" style="color:var(--muted);font-size:13px;margin-bottom:14px"></p><div class="ma"><button class="btn bg" onclick="cM('dpM')">Cancel</button><button class="btn bd" onclick="cDP()">🗑 Delete</button></div></div></div>
+  <div id="clM" class="modal"><div class="mc" style="text-align:center"><div class="mhd"></div><div style="font-size:40px;margin-bottom:4px">📞</div><div style="font-size:14px;color:var(--muted)" id="clN"></div><div style="font-size:28px;font-weight:800;color:var(--green);margin:12px 0;letter-spacing:1px" id="clNu"></div><div style="display:flex;gap:8px"><a id="clL" href="tel:" class="btn bs" style="flex:1;text-decoration:none">📞 Call</a><button class="btn bg" style="flex:1" onclick="cpN()">📋 Copy</button><button class="btn bg" onclick="cM('clM')">✕</button></div></div></div>
+  <div id="odM" class="modal"><div class="mc" style="text-align:center"><div class="mhd"></div><div style="font-size:36px;margin-bottom:8px">🔴</div><div class="mt2">Mark Overdue?</div><p id="odI" style="color:var(--muted);font-size:13px;margin-bottom:14px"></p><div class="ma"><button class="btn bg" onclick="cM('odM')">Cancel</button><button class="btn bd" onclick="cOD()">🔴 Mark</button></div></div></div>
+  <div id="dtM" class="modal"><div class="mc"><div class="mhd"></div><div class="mt2" id="dtT">Details</div><div id="dtC"></div><div class="ma"><button class="btn bg" onclick="cM('dtM')">Close</button></div></div></div>
+  <div id="rpM" class="modal"><div class="mc"><div class="mhd"></div><div class="mt2">📊 Report</div><div id="rpCap"><div id="rpC"></div></div><div class="ma" style="flex-direction:column;gap:8px"><button class="btn bpu bf" onclick="ssRp()">📸 Screenshot</button><button class="btn bg bf" onclick="cM('rpM')">Close</button></div></div></div>
+  <div id="dlM" class="modal"><div class="mc" style="text-align:center"><div class="mhd"></div><div class="mt2">⬇ Export</div><div class="ml" style="text-align:left">Range</div><div style="display:flex;gap:6px;margin-bottom:14px"><button class="chip active" id="eAll" onclick="sER('all')">All</button><button class="chip" id="eFl" onclick="sER('filtered')">Filtered</button></div><div class="ma" style="flex-direction:column;gap:10px"><button class="btn bp bf" onclick="dlCSV()">📄 CSV</button><button class="btn bs bf" onclick="dlPDF()">📑 PDF</button><button class="btn bg bf" onclick="cM('dlM')">Cancel</button></div></div></div>
+  <div id="nlM" class="modal"><div class="mc"><div class="mhd"></div><div class="mt2">🔄 New Loan</div><div id="nlCI" style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:14px"></div>
+    <div class="nlf"><label>Name</label><input type="text" id="nlN"/></div><div class="nlf"><label>Parent Name</label><input type="text" id="nlPN"/></div><div class="nlf"><label>Phone</label><input type="tel" id="nlPh"/></div><div class="nlf"><label>Aadhar</label><input type="text" id="nlAd" maxlength="14"/></div><div class="nlf"><label>Address</label><textarea id="nlAdr" rows="2"></textarea></div><div class="nlf"><label>State</label><input type="text" id="nlSt"/></div><div class="nlf"><label>City</label><input type="text" id="nlCt"/></div>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.05);margin:12px 0"/>
+    <div class="nlf"><label>Loan Amount *</label><div class="nla"><button class="nlab" onclick="nSL(5000)">₹5K</button><button class="nlab" onclick="nSL(8000)">₹8K</button><button class="nlab" onclick="nSL(10000)">₹10K</button><button class="nlab" onclick="nSL(15000)">₹15K</button><button class="nlab" onclick="nSL(20000)">₹20K</button></div><input type="number" id="nlLA" placeholder="Or type" inputmode="numeric"/></div>
+    <div class="nlf"><label>Interest (%)</label><div class="nla"><button class="nlab" onclick="nSI(10)">10%</button><button class="nlab" onclick="nSI(15)">15%</button><button class="nlab" onclick="nSI(20)">20%</button><button class="nlab" onclick="nSI(25)">25%</button></div><input type="number" id="nlIR" step="0.1" placeholder="%" inputmode="decimal"/></div>
+    <div class="nlf"><label>Payment Type</label><select id="nlPT"><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option></select></div>
+    <div class="nlf"><label>Installment *</label><div class="nla"><button class="nlab" onclick="nSIn(500)">₹500</button><button class="nlab" onclick="nSIn(800)">₹800</button><button class="nlab" onclick="nSIn(1000)">₹1K</button><button class="nlab" onclick="nSIn(1500)">₹1.5K</button><button class="nlab" onclick="nSIn(2000)">₹2K</button></div><input type="number" id="nlInA" placeholder="Or type" inputmode="numeric"/></div>
+    <div class="nls" id="nlS" style="display:none"><div class="nsr"><span style="color:var(--muted)">Loan</span><span style="font-weight:700" id="nsL">₹0</span></div><div class="nsr"><span style="color:var(--muted)">Commission</span><span style="font-weight:700;color:var(--red)" id="nsC">-₹0</span></div><div class="nsr"><span style="color:var(--muted)">Receives</span><span style="font-weight:700;color:var(--green)" id="nsR">₹0</span></div><div class="nsr"><span style="color:var(--muted)">Interest</span><span style="font-weight:700" id="nsIn">₹0</span></div><div class="nsr"><span style="color:var(--muted)">Total Payable</span><span style="font-weight:700;color:var(--blue);font-size:16px" id="nsT">₹0</span></div><div class="nsr"><span style="color:var(--muted)">Installments</span><span style="font-weight:700" id="nsIs">0</span></div></div>
+    <div class="ma" style="flex-direction:column;gap:8px"><button class="btn bp bf" id="nlSB" onclick="saveNL()">✅ Register</button><button class="btn bg bf" onclick="cM('nlM')">Cancel</button></div>
+  </div></div>
+  <div id="nlOK" class="modal"><div class="mc" style="text-align:center"><div class="mhd"></div><div style="font-size:48px;margin-bottom:8px">✅</div><div class="mt2">Registered!</div><p id="nlOM" style="color:var(--muted);font-size:13px;margin-bottom:14px;white-space:pre-line"></p><button class="btn bp bf" onclick="cM('nlOK')">Done</button></div></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script>
+    const FC={apiKey:"AIzaSyDQlQzo1yVfQOYYgNCrOcqBwLEAXKfZWCE",authDomain:"loan-17784.firebaseapp.com",databaseURL:"https://loan-17784-default-rtdb.europe-west1.firebasedatabase.app",projectId:"loan-17784",storageBucket:"loan-17784.firebasestorage.app",messagingSenderId:"30800980008",appId:"1:30800980008:web:9869d2e63a61b2e7022d1d",measurementId:"G-TLV6BKKFJG"};
+    firebase.initializeApp(FC);const db=firebase.database();
+    let AC={},AP={},PX=[],aL='',aPT='all',aDF='today',cFr='',cTo='',fMo='',apC=null,odC=null,dpC=null,dpK=null,cPh='',eR='all',aSF='',nlOC=null;
+    const CU={id:'user01',name:'User: 01',short:'U1'};
+    const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function fS(d){return`${d.getDate()} ${MO[d.getMonth()]}`}function fF(d){return`${d.getDate()} ${MO[d.getMonth()]} ${d.getFullYear()}`}function fI(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}function fR(s){if(!s)return'—';const d=new Date(s);return isNaN(d)?s:fF(d)}function fm(n){return`₹${Number(n||0).toLocaleString('en-IN')}`}function E(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}function SI(s){return String(s||'').replace(/[^a-zA-Z0-9]/g,'_')}function SK(id){return String(id||'').replace(/[.$#[\]/]/g,'_')}
+
+    document.addEventListener('DOMContentLoaded',()=>{iDB();document.getElementById('sB').addEventListener('input',()=>R());setDL();const n=new Date();document.getElementById('cdF').value=fI(n);document.getElementById('cdT').value=fI(n);document.getElementById('cMP').value=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;document.getElementById('nlLA').addEventListener('input',nC);document.getElementById('nlIR').addEventListener('input',nC);document.getElementById('nlInA').addEventListener('input',nC);document.getElementById('cAv').textContent=CU.short;document.getElementById('cNm').textContent=CU.name;document.getElementById('cUid').textContent=`ID: ${CU.id}`});
+    function iDB(){db.ref('settings/prefixes').on('value',s=>{const v=s.val();if(Array.isArray(v)&&v.length){PX=v;rL()}});db.ref('customers').on('value',s=>{AC=s.val()||{};uA()});db.ref('payments').on('value',s=>{AP=s.val()||{};uA()})}
+    function uA(){rL();R();uS()}
+    function setDL(){const n=new Date();document.getElementById('dfT').textContent=fF(n);const y=new Date(n);y.setDate(y.getDate()-1);document.getElementById('dfY').textContent=fF(y);const w=new Date(n);w.setDate(w.getDate()-6);document.getElementById('dfL').textContent=`${fS(w)}-${fS(n)}`}
+    function gDR(){const n=new Date();n.setHours(23,59,59,999);const s=new Date(n);s.setHours(0,0,0,0);if(aDF==='today')return{s,e:n};if(aDF==='yesterday'){const y=new Date(s);y.setDate(y.getDate()-1);const ye=new Date(y);ye.setHours(23,59,59,999);return{s:y,e:ye}}if(aDF==='last7'){const w=new Date(s);w.setDate(w.getDate()-6);return{s:w,e:n}}if(aDF==='custom'&&cFr&&cTo)return{s:new Date(cFr+'T00:00:00'),e:new Date(cTo+'T23:59:59')};if(aDF==='month'&&fMo){const[y,m]=fMo.split('-').map(Number);return{s:new Date(y,m-1,1),e:new Date(y,m,0,23,59,59,999)}}return{s,e:n}}
+    function sPT(t){aPT=t;document.getElementById('cAll').classList.toggle('active',t==='all');document.getElementById('cWk').classList.toggle('active',t==='weekly');document.getElementById('cMo').classList.toggle('active',t==='monthly');R();uS()}
+    function sDF(f){aDF=f;document.querySelectorAll('.dc').forEach(c=>c.classList.toggle('active',c.dataset.df===f));document.getElementById('cdR').style.display=f==='custom'?'flex':'none';document.getElementById('mpR').style.display=f==='month'?'flex':'none';if(f!=='custom'&&f!=='month'){R();uS()}}
+    function aCD(){cFr=document.getElementById('cdF').value;cTo=document.getElementById('cdT').value;if(!cFr||!cTo){alert('Select dates');return}R();uS()}
+    function aMF(){fMo=document.getElementById('cMP').value;if(!fMo){alert('Select month');return}R();uS()}
+    function sF(t){if(aSF===t){aSF='';document.querySelectorAll('.ss').forEach(c=>c.classList.remove('act'))}else{aSF=t;document.querySelectorAll('.ss').forEach(c=>c.classList.remove('act'));document.getElementById(t==='collected'?'ssC':(t==='paid'?'ssP':'ssN')).classList.add('act')}R();setTimeout(()=>{document.getElementById('cL')?.scrollIntoView({behavior:'smooth',block:'start'})},100)}
+    function rL(){const c=document.getElementById('lT');c.innerHTML='';const cs=gFC();const a=document.createElement('button');a.className='lt'+(aL===''?' active':'');a.innerHTML=`All <span class="tc">${cs.length}</span>`;a.onclick=()=>{aL='';rL();R()};c.appendChild(a);PX.forEach(p=>{const cn=cs.filter(x=>(x.customerId||'').split('-')[0]===p).length;const t=document.createElement('button');t.className='lt'+(aL===p?' active':'');t.innerHTML=`${E(p)} <span class="tc">${cn}</span>`;t.onclick=()=>{aL=p;rL();R()};c.appendChild(t)})}
+    function gFC(){let c=Object.values(AC);if(aPT==='weekly')c=c.filter(x=>(x.paymentType||'monthly')==='weekly');else if(aPT==='monthly')c=c.filter(x=>(x.paymentType||'monthly')==='monthly');return c}
+    function gPR(id){const r=gDR();return gP(id).filter(p=>{const d=new Date(p.date);return d>=r.s&&d<=r.e})}
+    function gPRT(id){return gPR(id).reduce((s,p)=>s+(Number(p.amount)||0),0)}
+    function gP(id){const k=SK(id);const p=AP[k];if(!p)return[];return Object.entries(p).map(([key,val])=>({...val,_key:key}))}
+    function gPd(id){return gP(id).reduce((s,p)=>s+(Number(p.amount)||0),0)}
+    function isOD(c){if(c.isOverdue===true)return true;const p=gPd(c.customerId);const t=c.totalPayable||0;if(t<=0||p>=t)return false;const ps=gP(c.customerId);let last=c.date?new Date(c.date):null;if(c.savedAt&&(!last||new Date(c.savedAt)>last))last=new Date(c.savedAt);ps.forEach(x=>{const d=new Date(x.date);if(!last||d>last)last=d});if(!last)return false;return Math.floor((Date.now()-last.getTime())/864e5)>=30}
+    function fCu(id){return AC[SK(id)]||null}
+    function gLC(c){const nm=(c.name||'').toLowerCase().trim();const ph=(c.phone||'').trim();if(!nm&&!ph)return 1;let n=0;Object.values(AC).forEach(x=>{if((nm&&(x.name||'').toLowerCase().trim()===nm)||(ph&&(x.phone||'').trim()===ph))n++});return n||1}
+    function uS(){let cs=gFC();if(aL)cs=cs.filter(c=>(c.customerId||'').split('-')[0]===aL);let col=0,pc=0,np=0;cs.forEach(c=>{const ra=gPRT(c.customerId);const pd=gPd(c.customerId);const t=c.totalPayable||0;const dn=t>0&&pd>=t;if(ra>0){pc++;col+=ra}else if(!dn)np++});document.getElementById('ssCV').textContent=fm(col);document.getElementById('ssPV').textContent=pc;document.getElementById('ssNV').textContent=np}
+
+    function R(){
+      const con=document.getElementById('cL'),cel=document.getElementById('lC'),sr=(document.getElementById('sB').value||'').trim().toLowerCase();
+      let cs=gFC();if(aL)cs=cs.filter(c=>(c.customerId||'').split('-')[0]===aL);
+      cs=cs.map(c=>{const pd=gPd(c.customerId);const t=c.totalPayable||0;const pct=t>0?Math.min(100,Math.round((pd/t)*100)):0;const rp=gPRT(c.customerId);const ov=isOD(c);const dn=t>0&&pd>=t;let st='not-paid';if(dn)st='completed';else if(ov)st='overdue';else if(rp>0)st='paid-today';return{...c,_pd:pd,_pn:Math.max(0,t-pd),_pct:pct,_rp:rp,_st:st,_ov:ov,_dn:dn,_lc:gLC(c)}});
+      if(aSF==='paid'||aSF==='collected')cs=cs.filter(c=>c._rp>0);else if(aSF==='notpaid')cs=cs.filter(c=>c._rp===0&&!c._dn);
+      if(sr)cs=cs.filter(c=>(c.name||'').toLowerCase().includes(sr)||(c.customerId||'').toLowerCase().includes(sr)||(c.phone||'').toLowerCase().includes(sr));
+      cs.sort((a,b)=>(parseInt((b.customerId||'').split('-').pop())||0)-(parseInt((a.customerId||'').split('-').pop())||0));
+      if(cs.length>0){cel.style.display='block';let lb='customers';if(aSF==='paid'||aSF==='collected')lb='paid';else if(aSF==='notpaid')lb='not paid';cel.innerHTML=`Showing <span class="cn">${cs.length}</span> ${lb}`}else cel.style.display='none';
+      if(!cs.length){con.innerHTML=`<div class="nd"><div class="ni">💰</div><div class="nt">${aSF?'No match':'Select location'}</div></div>`;return}
+
+      con.innerHTML=cs.map(c=>{
+        const bc=c._pct>=100?'green':(c._pct>=50?'orang':'red');const pcl=c._pct>=100?'var(--green)':(c._pct>=50?'var(--warn)':'var(--red)');
+        const ph=c.phone||'';const s=SI(c.customerId);
+        const sd=c.date?fR(c.date):(c.savedAt?fR(new Date(c.savedAt).toISOString().split('T')[0]):'—');
+        const ptl=(c.paymentType||'monthly')==='weekly'?'Wk':'Mo';const pbc=(c.paymentType||'monthly')==='weekly'?'b-wk':'b-mo';
+        const sb=c._dn?'<span class="badge b-dn">Done</span>':(c._ov?'<span class="badge b-od">Overdue</span>':(c._rp>0?'<span class="badge b-pd">Paid</span>':'<span class="badge b-np">Due</span>'));
+        const lcB=c._lc>1?`<span class="badge b-lc">Loan #${c._lc}</span>`:'';
+        const uB=`<span class="badge b-user">${CU.name}</span>`;
+        const ap=gP(c.customerId).sort((a,b)=>new Date(b.date)-new Date(a.date));
+        const sOD=!c._dn&&!c._ov;const sCl=c._ov&&!c._dn;
+        const pM=c._rp>0&&!c._dn?`<span class="pm"><span class="ps">★</span><span class="pt">Paid</span></span>`:'';
+        const oS=c._ov?'<span class="os">★</span>':'';
+        let compH='';if(c._dn)compH=`<div class="compbox"><div class="ctxt">✅ Fully Paid</div><button class="nlb" onclick="openNL('${E(c.customerId)}')">🔄 New Loan</button></div>`;
+        let b1='',b2='',b3='';
+        if(c._dn){b1=`<button class="tb hist" onclick="tH('${s}')">📋 History</button>`;b2='<div></div>';b3='<div></div>'}
+        else{b1=`<button class="tb pay" onclick="openAP('${E(c.customerId)}')">💰 Pay</button>`;b2=sOD?`<button class="tb od" onclick="openOD('${E(c.customerId)}')">🔴 Overdue</button>`:(sCl?`<button class="tb clr" onclick="rmOD('${E(c.customerId)}')">✅ Clear</button>`:'<div></div>');b3=`<button class="tb hist" onclick="tH('${s}')">📋 History</button>`}
+
+        return`<div class="cc ${c._st}"><div class="cm"><div class="ct"><div class="ci"><div class="cn2">${oS}${E(c.name||'—')} ${pM}</div><div class="cm2"><span class="cid">${E(c.customerId)}</span><span class="badge ${pbc}">${ptl}</span>${sb}${lcB}${uB}</div><div class="csd">Started: ${sd}${c.previousLoanId?` · Prev: ${E(c.previousLoanId)}`:''}</div></div><div class="ca"><button class="ib" onclick="openCl('${E(c.name||'')}','${E(ph)}')" title="Call">📞</button><button class="ib" onclick="openDt('${E(c.customerId)}')" title="Info">ℹ️</button></div></div><div class="cpg"><div class="pr"><span class="prl">Paid</span><span class="prv g">${fm(c._pd)}</span></div><div class="pr"><span class="prl">Pending</span><span class="prv o">${fm(c._pn)}</span></div><div class="pbw"><div class="pb ${bc}" style="width:${c._pct}%"></div></div><div class="pbp" style="color:${pcl}">${c._pct}%</div>${c._rp>0?`<div class="cola"><span class="cl2">Collected:</span><span class="cv2">${fm(c._rp)}</span></div>`:''}</div>${compH}</div><div class="cbot">${b1}${b2}${b3}</div><div class="ph" id="h-${s}"><div class="phtl">History (${ap.length})</div>${ap.length===0?'<div class="phe">No payments</div>':ap.map(p=>`<div class="phi"><div><div class="phd">${fR(p.date)}</div><div class="phti">${p.timestamp?new Date(p.timestamp).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):''} · ${p.collectedBy||CU.name}</div></div><div class="phr"><span class="pha">${fm(p.amount)}</span><button class="phx" onclick="openDP('${E(c.customerId)}','${E(p._key)}','${p.date}',${p.amount})">🗑</button></div></div>`).join('')}<button class="btn bg bsm bf" style="margin-top:8px" onclick="tH('${s}')">Done ✓</button></div></div>`}).join('');
+    }
+    function tH(s){const h=document.getElementById('h-'+s);if(!h)return;h.classList.toggle('show');if(h.classList.contains('show'))setTimeout(()=>h.scrollIntoView({behavior:'smooth',block:'nearest'}),100)}
+
+    function openAP(id){apC=id;const c=fCu(id);document.getElementById('apI').textContent=`${c?c.name:id} — ${id}`;document.getElementById('apD').value=fI(new Date());document.getElementById('apA').value='';document.getElementById('apM').classList.add('show');setTimeout(()=>document.getElementById('apA').focus(),100)}
+    function savePay(){if(!apC)return;const a=Number(document.getElementById('apA').value);const d=document.getElementById('apD').value;if(!a||a<=0){alert('Enter amount');return}if(!d){alert('Select date');return}const c=fCu(apC);db.ref('payments/'+SK(apC)).push({customerId:apC,customerName:c?c.name:'',amount:a,date:d,timestamp:Date.now(),collectedBy:CU.name}).then(()=>{cM('apM');apC=null;sT('💰 Added!')}).catch(()=>alert('Failed'))}
+    function openDP(id,k,d,a){dpC=id;dpK=k;document.getElementById('dpI').textContent=`Delete ${fm(a)} on ${fR(d)}?`;document.getElementById('dpM').classList.add('show')}
+    function cDP(){if(!dpC||!dpK)return;db.ref(`payments/${SK(dpC)}/${dpK}`).remove().then(()=>{cM('dpM');dpC=null;dpK=null;sT('🗑 Deleted!')}).catch(()=>alert('Failed'))}
+    function openCl(n,p){if(!p){sT('No phone');return}cPh=p;document.getElementById('clN').textContent=n||'Customer';document.getElementById('clNu').textContent=p;document.getElementById('clL').href='tel:'+p;document.getElementById('clM').classList.add('show')}
+    function cpN(){if(!cPh)return;navigator.clipboard.writeText(cPh).then(()=>sT('📋 Copied!')).catch(()=>{const t=document.createElement('textarea');t.value=cPh;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);sT('📋 Copied!')})}
+
+    function openOD(id){odC=id;const c=fCu(id);document.getElementById('odI').textContent=`${c?c.name:id} (${id})`;document.getElementById('odM').classList.add('show')}
+    function cOD(){if(!odC)return;db.ref('customers/'+SK(odC)).update({isOverdue:true,overdueAt:Date.now()}).then(()=>{cM('odM');odC=null;sT('🔴 Overdue')}).catch(()=>alert('Failed'))}
+    function rmOD(id){db.ref('customers/'+SK(id)).update({isOverdue:false,overdueAt:null}).then(()=>sT('✅ Cleared')).catch(()=>alert('Failed'))}
+
+    /* Detail */
+    function openDt(id){
+      const c=fCu(id);if(!c){alert('Not found');return}
+      const pd=gPd(id);const t=c.totalPayable||0;const pn=Math.max(0,t-pd);const pct=t>0?Math.min(100,Math.round((pd/t)*100)):0;
+      const sd=c.date?fR(c.date):(c.savedAt?fR(new Date(c.savedAt).toISOString().split('T')[0]):'—');
+      const ptl=(c.paymentType||'monthly').charAt(0).toUpperCase()+(c.paymentType||'monthly').slice(1);
+      const ia=c.installmentAmount||0;const lc=gLC(c);
+      document.getElementById('dtT').textContent=c.name||id;
+      document.getElementById('dtC').innerHTML=`
+        <div class="dgr">
+          <div class="di"><div class="dll">Customer ID</div><div class="dvl" style="color:var(--blue)">${E(id)}</div><button class="cpb2" onclick="cpT('${E(id)}',this)">📋</button></div>
+          <div class="di"><div class="dll">Start Date</div><div class="dvl">${sd}</div></div>
+          <div class="di"><div class="dll">Name</div><div class="dvl">${E(c.name||'—')}</div><button class="cpb2" onclick="cpT('${E(c.name||'')}',this)">📋</button></div>
+          <div class="di"><div class="dll">Parent Name</div><div class="dvl">${E(c.parentName||'—')}</div></div>
+          <div class="di"><div class="dll">Phone</div><div class="dvl"><a href="tel:${E(c.phone||'')}" style="color:var(--green);text-decoration:none;font-weight:700">${E(c.phone||'—')} 📞</a></div><button class="cpb2" onclick="cpT('${E(c.phone||'')}',this)">📋</button></div>
+          <div class="di"><div class="dll">Aadhar</div><div class="dvl">${E(c.aadhar||'—')}</div><button class="cpb2" onclick="cpT('${E(c.aadhar||'')}',this)">📋</button></div>
+          <div class="di full"><div class="dll">Address</div><div class="dvl">${E(c.address||'—')}</div><button class="cpb2" onclick="cpT(\`${E(c.address||'')}\`,this)">📋</button></div>
+          <div class="di"><div class="dll">State</div><div class="dvl">${E(c.state||'—')}</div></div>
+          <div class="di"><div class="dll">City</div><div class="dvl">${E(c.city||'—')}</div></div>
+          <div class="di"><div class="dll">Loan Count</div><div class="dvl" style="color:var(--orange);font-weight:800;font-size:18px">${lc}</div></div>
+          ${c.previousLoanId?`<div class="di"><div class="dll">Previous Loan</div><div class="dvl" style="color:var(--cyan)">${E(c.previousLoanId)}</div></div>`:''}
+        </div>
+        <div class="ds">
+          <div style="text-align:center;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">💰 Loan Summary</div>
+          <div class="dsr"><span class="dsl">Loan Amount</span><span class="dsv">${fm(c.loanAmount)}</span></div>
+          <div class="dsr"><span class="dsl">Commission</span><span class="dsv" style="color:var(--red)">- ${fm(c.commissionFee||0)}</span></div>
+          <div class="dsr"><span class="dsl">Received</span><span class="dsv" style="color:var(--green)">${fm(c.customerReceives||0)}</span></div>
+          <div class="dsr"><span class="dsl">Interest (${c.interestRate||0}%)</span><span class="dsv">${fm(c.interestAmount||0)}</span></div>
+          <div class="dsr"><span class="dsl">Total Payable</span><span class="dsv" style="color:var(--blue);font-size:16px">${fm(t)}</span></div>
+        </div>
+        <div class="ds" style="background:rgba(39,196,140,.06);border-color:rgba(39,196,140,.1)">
+          <div style="text-align:center;font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">✅ Payment Status</div>
+          <div class="dsr"><span class="dsl">Total Paid</span><span class="dsv" style="color:var(--green)">${fm(pd)}</span></div>
+          <div class="dsr"><span class="dsl">Remaining</span><span class="dsv" style="color:var(--warn)">${fm(pn)}</span></div>
+          <div class="dsr"><span class="dsl">Progress</span><span class="dsv" style="color:${pct>=100?'var(--green)':(pct>=50?'var(--warn)':'var(--red)')}">${pct}%</span></div>
+          <div style="margin-top:6px"><div class="pbw" style="height:8px;border-radius:4px"><div class="pb ${pct>=100?'green':(pct>=50?'orang':'red')}" style="width:${pct}%;border-radius:4px"></div></div></div>
+        </div>
+        <div class="ds" style="background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.1)">
+          <div style="text-align:center;font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📅 Plan</div>
+          <div class="dsr"><span class="dsl">Type</span><span class="dsv">${ptl}</span></div>
+          <div class="dsr"><span class="dsl">Installment</span><span class="dsv">${fm(ia)}</span></div>
+          <div class="dsr"><span class="dsl">Total</span><span class="dsv">${c.numberOfInstallments||0}</span></div>
+          <div class="dsr"><span class="dsl">Paid</span><span class="dsv" style="color:var(--green)">${ia>0?Math.floor(pd/ia):0}</span></div>
+          <div class="dsr"><span class="dsl">Left</span><span class="dsv" style="color:var(--warn)">${ia>0?Math.max(0,Math.ceil(pn/ia)):0}</span></div>
+        </div>`;
+      document.getElementById('dtM').classList.add('show');
+    }
+
+    /* New Loan */
+    function openNL(id){
+      nlOC=id;const c=fCu(id);if(!c){alert('Not found');return}const lc=gLC(c);
+      document.getElementById('nlCI').textContent=`${c.name} (${id}) · Loan #${lc+1}`;
+      document.getElementById('nlN').value=c.name||'';document.getElementById('nlPN').value=c.parentName||'';
+      document.getElementById('nlPh').value=c.phone||'';document.getElementById('nlAd').value=c.aadhar||'';
+      document.getElementById('nlAdr').value=c.address||'';document.getElementById('nlSt').value=c.state||'';
+      document.getElementById('nlCt').value=c.city||'';document.getElementById('nlLA').value='';
+      document.getElementById('nlIR').value='';document.getElementById('nlInA').value='';
+      document.getElementById('nlPT').value=c.paymentType||'monthly';
+      document.getElementById('nlS').style.display='none';
+      document.querySelectorAll('.nlab').forEach(b=>b.classList.remove('active'));
+      document.getElementById('nlM').classList.add('show');
+    }
+    function nSL(a){document.getElementById('nlLA').value=a;let r=10;if(a<=5000)r=25;else if(a<=10000)r=20;else if(a<=20000)r=15;document.getElementById('nlIR').value=r;nC()}
+    function nSI(r){document.getElementById('nlIR').value=r;nC()}
+    function nSIn(a){document.getElementById('nlInA').value=a;nC()}
+    function nC(){
+      const l=Number(document.getElementById('nlLA').value)||0;const r=Number(document.getElementById('nlIR').value)||0;const i=Number(document.getElementById('nlInA').value)||0;
+      if(l<=0){document.getElementById('nlS').style.display='none';return}
+      const cm=Math.floor(l/5000)*100;const rc=Math.max(0,l-cm);const int=(l*r)/100;const tp=l+int;const ins=i>0?Math.ceil(tp/i):0;
+      document.getElementById('nsL').textContent=fm(l);document.getElementById('nsC').textContent=`- ${fm(cm)}`;
+      document.getElementById('nsR').textContent=fm(rc);document.getElementById('nsIn').textContent=`${fm(int)} (${r}%)`;
+      document.getElementById('nsT').textContent=fm(tp);document.getElementById('nsIs').textContent=i>0?`${ins} × ${fm(i)}`:'—';
+      document.getElementById('nlS').style.display='block';
+    }
+    async function saveNL(){
+      if(!nlOC)return;const l=Number(document.getElementById('nlLA').value)||0;const r=Number(document.getElementById('nlIR').value)||0;const i=Number(document.getElementById('nlInA').value)||0;const nm=document.getElementById('nlN').value.trim();
+      if(!l||l<=0){alert('Enter loan amount');return}if(!nm){alert('Enter name');return}if(!i||i<=0){alert('Enter installment');return}
+      const btn=document.getElementById('nlSB');btn.disabled=true;btn.textContent='Saving...';
+      try{
+        const res=await db.ref('settings/nextId').transaction(cur=>{if(cur==null)return 2025002;return cur+1},undefined,false);
+        if(!res.committed)throw new Error('fail');const nid=res.snapshot.val()-1;
+        const pfx=(nlOC||'').split('-')[0]||'CUS';const newId=`${pfx}-${nid}`;
+        const cm=Math.floor(l/5000)*100;const rc=Math.max(0,l-cm);const int=(l*r)/100;const tp=l+int;const ins=i>0?Math.ceil(tp/i):0;
+        const oldC=fCu(nlOC);const lc=oldC?gLC(oldC):0;
+        const data={customerId:newId,name:nm,parentName:document.getElementById('nlPN').value.trim(),phone:document.getElementById('nlPh').value.trim(),aadhar:document.getElementById('nlAd').value.trim(),address:document.getElementById('nlAdr').value.trim(),state:document.getElementById('nlSt').value.trim(),city:document.getElementById('nlCt').value.trim(),date:fI(new Date()),loanAmount:l,commissionFee:cm,customerReceives:rc,interestRate:r,interestAmount:int,totalPayable:tp,paymentType:document.getElementById('nlPT').value,installmentAmount:i,numberOfInstallments:ins,previousLoanId:nlOC,loanNumber:lc+1,savedAt:Date.now()};
+        await db.ref('customers/'+newId.replace(/[.$#[\]/]/g,'_')).set(data);
+        await db.ref('registrations').push({...data,pushedAt:Date.now()});
+        cM('nlM');document.getElementById('nlOM').textContent=`New ID: ${newId}\nLoan #${lc+1}\nAmount: ${fm(l)}\nReceives: ${fm(rc)}\nRepays: ${fm(tp)}\nPrev: ${nlOC}`;
+        document.getElementById('nlOK').classList.add('show');nlOC=null;
+      }catch(e){console.error(e);alert('Failed')}
+      finally{btn.disabled=false;btn.textContent='✅ Register'}
+    }
+
+    /* ===== REPORT — phone icon next to ID (clickable), hidden in screenshot ===== */
+    function rpCallClick(name,phone){openCl(name,phone)}
+
+    function openRp(){
+      const rng=gDR();let cs=gFC();if(aL)cs=cs.filter(c=>(c.customerId||'').split('-')[0]===aL);
+      let pl=[],npl=[],ol=[],tc=0;
+      cs.forEach(c=>{const rp=gPRT(c.customerId);const tp=gPd(c.customerId);const t=c.totalPayable||0;const dn=t>0&&tp>=t;if(rp>0){pl.push({...c,_rp:rp});tc+=rp}else if(!dn){if(isOD(c))ol.push(c);else npl.push(c)}});
+      const dl=aDF==='today'?`Today · ${fF(new Date())}`:aDF==='yesterday'?`Yesterday · ${fF(new Date(Date.now()-864e5))}`:aDF==='last7'?'Last 7 Days':aDF==='custom'?`${fR(cFr)} to ${fR(cTo)}`:aDF==='month'?`Month: ${fMo}`:`Today · ${fF(new Date())}`;
+
+      // Build report - phone icons have class rp-call-live (visible on screen, hidden in screenshot)
+      document.getElementById('rpC').innerHTML=`
+        <style>.rp-call-live{cursor:pointer;font-size:10px;color:#0b5ed7;margin-left:3px;text-decoration:none;display:inline}</style>
+        <div style="text-align:center;margin-bottom:10px;padding:10px;background:rgba(11,94,215,.08);border-radius:10px">
+          <div style="font-size:14px;font-weight:800;color:#0b5ed7;margin-bottom:2px">SR Finance — Collection Report</div>
+          <div style="font-size:11px;color:#7a8a99">${dl}</div>
+          <div style="font-size:10px;color:#7a8a99">${aL||'All Locations'} · ${CU.name}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(39,196,140,.08);border-radius:8px;margin-bottom:10px;font-weight:700;font-size:14px">
+          <span style="color:#e6f0f6">💰 Collected</span><span style="color:#27c48c;font-size:18px">${fm(tc)}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+          <div style="text-align:center;padding:8px;background:rgba(39,196,140,.08);border-radius:8px"><div style="font-size:18px;font-weight:800;color:#27c48c">${pl.length}</div><div style="font-size:9px;color:#7a8a99;text-transform:uppercase;font-weight:700">Paid</div></div>
+          <div style="text-align:center;padding:8px;background:rgba(240,165,0,.08);border-radius:8px"><div style="font-size:18px;font-weight:800;color:#f0a500">${npl.length}</div><div style="font-size:9px;color:#7a8a99;text-transform:uppercase;font-weight:700">Not Paid</div></div>
+          <div style="text-align:center;padding:8px;background:rgba(255,107,107,.08);border-radius:8px"><div style="font-size:18px;font-weight:800;color:#ff6b6b">${ol.length}</div><div style="font-size:9px;color:#7a8a99;text-transform:uppercase;font-weight:700">Overdue</div></div>
+        </div>
+
+        <div class="rsec">
+          <div class="rst" style="color:#27c48c">✅ Paid (${pl.length})</div>
+          ${pl.length?`<table class="rt"><colgroup><col style="width:7%"><col style="width:33%"><col style="width:35%"><col style="width:25%"></colgroup>
+          <tr><th>#</th><th>ID</th><th>Name</th><th style="text-align:right">Amount</th></tr>
+          ${pl.sort((a,b)=>b._rp-a._rp).map((c,i)=>`<tr>
+            <td style="color:#7a8a99">${i+1}</td>
+            <td style="color:#0b5ed7;font-weight:600">${E(c.customerId)} <span class="rp-call-live" onclick="rpCallClick('${E(c.name||'')}','${E(c.phone||'')}')">📞</span></td>
+            <td style="font-weight:600">${E(c.name||'—')}</td>
+            <td style="color:#27c48c;font-weight:800;text-align:right;font-size:12px">${fm(c._rp)}</td>
+          </tr>`).join('')}</table>`:'<div class="phe">None</div>'}
+        </div>
+
+        <div class="rsec">
+          <div class="rst" style="color:#f0a500">⏳ Not Paid (${npl.length})</div>
+          ${npl.length?`<table class="rt"><colgroup><col style="width:7%"><col style="width:33%"><col style="width:35%"><col style="width:25%"></colgroup>
+          <tr><th>#</th><th>ID</th><th>Name</th><th style="text-align:right">Pending</th></tr>
+          ${npl.map((c,i)=>`<tr>
+            <td style="color:#7a8a99">${i+1}</td>
+            <td style="color:#0b5ed7;font-weight:600">${E(c.customerId)} <span class="rp-call-live" onclick="rpCallClick('${E(c.name||'')}','${E(c.phone||'')}')">📞</span></td>
+            <td style="font-weight:600">${E(c.name||'—')}</td>
+            <td style="color:#f0a500;font-weight:800;text-align:right;font-size:12px">${fm(Math.max(0,(c.totalPayable||0)-gPd(c.customerId)))}</td>
+          </tr>`).join('')}</table>`:'<div class="phe">All paid! 🎉</div>'}
+        </div>
+
+        <div class="rsec">
+          <div class="rst" style="color:#ff6b6b">🔴 Overdue (${ol.length})</div>
+          ${ol.length?`<table class="rt"><colgroup><col style="width:7%"><col style="width:33%"><col style="width:35%"><col style="width:25%"></colgroup>
+          <tr><th>#</th><th>ID</th><th>Name</th><th style="text-align:right">Pending</th></tr>
+          ${ol.map((c,i)=>`<tr>
+            <td style="color:#7a8a99">${i+1}</td>
+            <td style="color:#0b5ed7;font-weight:600">${E(c.customerId)} <span class="rp-call-live" onclick="rpCallClick('${E(c.name||'')}','${E(c.phone||'')}')">📞</span></td>
+            <td style="font-weight:600">${E(c.name||'—')}</td>
+            <td style="color:#ff6b6b;font-weight:800;text-align:right;font-size:12px">${fm(Math.max(0,(c.totalPayable||0)-gPd(c.customerId)))}</td>
+          </tr>`).join('')}</table>`:'<div class="phe">None</div>'}
+        </div>
+        <div style="text-align:center;margin-top:8px;font-size:8px;color:rgba(122,138,153,.4)">Generated: ${fF(new Date())} ${new Date().toLocaleTimeString('en-IN')} · ${CU.name}</div>`;
+      document.getElementById('rpM').classList.add('show');
+    }
+
+    /* Screenshot - hide phone icons, capture full height */
+    function ssRp(){
+      const el=document.getElementById('rpCap');if(!el)return;sT('📸 Capturing...');
+      // Hide phone icons for clean screenshot
+      const icons=el.querySelectorAll('.rp-call-live');
+      icons.forEach(i=>i.style.display='none');
+      const origMH=el.style.maxHeight;const origOF=el.style.overflow;
+      el.style.maxHeight='none';el.style.overflow='visible';
+      const w=Math.max(el.scrollWidth,el.offsetWidth);
+      const h=Math.max(el.scrollHeight,el.offsetHeight);
+      html2canvas(el,{backgroundColor:'#071017',scale:2,useCORS:true,logging:false,width:w,height:h,windowWidth:w,windowHeight:h,scrollX:0,scrollY:0}).then(cv=>{
+        // Restore
+        icons.forEach(i=>i.style.display='inline');
+        el.style.maxHeight=origMH;el.style.overflow=origOF;
+        cv.toBlob(bl=>{
+          const fn=`SR_Report_${aL||'All'}_${fI(new Date())}.png`;
+          if(navigator.share){try{const f=new File([bl],fn,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'SR Finance'}).then(()=>sT('📸 Shared!')).catch(()=>dlB(bl,fn))}else dlB(bl,fn)}catch(e){dlB(bl,fn)}}
+          else dlB(bl,fn);
+        },'image/png',1.0);
+      }).catch(e=>{icons.forEach(i=>i.style.display='inline');el.style.maxHeight=origMH;el.style.overflow=origOF;console.error(e);alert('Screenshot failed')});
+    }
+    function dlB(bl,fn){const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=fn;a.click();URL.revokeObjectURL(u);sT('📸 Saved!')}
+
+    /* Copy */
+    function cpT(t,b){if(!t)return;navigator.clipboard.writeText(t).then(()=>{if(b){b.classList.add('copied');b.textContent='✅';setTimeout(()=>{b.classList.remove('copied');b.textContent='📋'},1500)}sT('📋 Copied!')}).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);if(b){b.classList.add('copied');b.textContent='✅';setTimeout(()=>{b.classList.remove('copied');b.textContent='📋'},1500)}sT('📋 Copied!')})}
+
+    /* Export */
+    function sER(r){eR=r;document.getElementById('eAll').classList.toggle('active',r==='all');document.getElementById('eFl').classList.toggle('active',r==='filtered')}
+    function openDL(){document.getElementById('dlM').classList.add('show')}
+    function gED(){let cs=eR==='all'?Object.values(AC):gFC();if(eR==='filtered'&&aL)cs=cs.filter(c=>(c.customerId||'').split('-')[0]===aL);cs.sort((a,b)=>(parseInt((b.customerId||'').split('-').pop())||0)-(parseInt((a.customerId||'').split('-').pop())||0));return cs.map(c=>{const pd=gPd(c.customerId);const t=c.totalPayable||0;const pn=Math.max(0,t-pd);let st='Pending';if(t>0&&pd>=t)st='Completed';else if(isOD(c))st='Overdue';const ps=gP(c.customerId).sort((a,b)=>new Date(b.date)-new Date(a.date));return{'Customer ID':c.customerId||'','Name':c.name||'','Phone':c.phone||'','Start Date':c.date||'','Loan Amount':c.loanAmount||0,'Total Payable':t,'Total Paid':pd,'Pending':pn,'Progress':t>0?Math.min(100,Math.round((pd/t)*100)):0,'Type':c.paymentType||'','Status':st,'Loan #':gLC(c),'Prev Loan':c.previousLoanId||'','Last Pay':ps.length?ps[0].date:''}})}
+
+    function dlCSV(){const d=gED();if(!d.length){alert('No data');return}const h=Object.keys(d[0]);const rows=[h.join(',')];d.forEach(r=>{const v=h.map(k=>{let s=String(r[k]||'');if(s.includes(',')||s.includes('"')||s.includes('\n'))s='"'+s.replace(/"/g,'""')+'"';return s});rows.push(v.join(','))});const bl=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=`SR_Finance_${aL||'All'}_${fI(new Date())}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);cM('dlM');sT('📄 CSV!')}
+
+    function dlPDF(){const d=gED();if(!d.length){alert('No data');return}try{const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});const now=new Date();doc.setFontSize(18);doc.setFont('helvetica','bold');doc.text('SR Finance — Report',14,15);doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(100);doc.text(`${aL||'All'} | ${fF(now)} | ${CU.name}`,14,22);doc.setTextColor(0);const th=['Customer ID','Name','Phone','Loan Amount','Total Payable','Total Paid','Pending','Status','Loan #'];const td=d.map(r=>th.map(h=>String(r[h]||'')));doc.autoTable({startY:28,head:[th],body:td,styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[11,94,215],textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[240,245,250]},didParseCell:function(x){if(x.section==='body'&&x.column.index===7){if(x.cell.raw==='Completed')x.cell.styles.textColor=[39,196,140];else if(x.cell.raw==='Overdue')x.cell.styles.textColor=[255,107,107];else x.cell.styles.textColor=[240,165,0]}},margin:{left:14,right:14}});doc.save(`SR_Finance_${aL||'All'}_${fI(now)}.pdf`);cM('dlM');sT('📑 PDF!')}catch(e){console.error(e);alert('PDF failed')}}
+
+    function cM(id){document.getElementById(id).classList.remove('show')}
+    function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+    document.querySelectorAll('.modal').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')})});
+  </script>
+</body>
+</html>
+
