@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>SR Finance — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:linear-gradient(135deg,#e8f0fe 0%,#f0f4f8 100%);min-height:100vh;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#fff;border-radius:20px;padding:40px 32px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(11,94,215,.12)}
+    .logo-wrap{text-align:center;margin-bottom:28px}
+    .logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#0b5ed7,#084ab0);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:24px;margin:0 auto 12px}
+    h1{font-size:22px;font-weight:800;color:#1a2744;margin-bottom:4px}
+    .sub{font-size:13px;color:#7a8a99}
+    .field{margin-bottom:16px}
+    .field label{display:block;font-size:12px;font-weight:700;color:#4a5568;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+    .field input{width:100%;padding:14px 16px;border-radius:12px;border:2px solid #e8f0fe;background:#f8faff;font-size:15px;font-family:'Inter',sans-serif;color:#1a2744;transition:border .15s}
+    .field input:focus{outline:none;border-color:#0b5ed7;background:#fff}
+    .btn-login{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#0b5ed7,#084ab0);color:#fff;font-size:16px;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;margin-top:8px;box-shadow:0 4px 16px rgba(11,94,215,.3);transition:all .15s}
+    .btn-login:active{transform:scale(.98)}
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a2744;color:#fff;padding:10px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+    .toast.show{opacity:1}
+    .footer-note{text-align:center;margin-top:20px;font-size:11px;color:#b0bec5}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo-wrap">
+      <div class="logo">SF</div>
+      <h1>SR Finance</h1>
+      <div class="sub">Money Collection System</div>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="uname" placeholder="Enter username" autocomplete="username"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="pwd" placeholder="Enter password" autocomplete="current-password"/>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Login →</button>
+    <div class="footer-note">SR Finance © 2025 · Secure Login</div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const USERS=[
+      {id:'user01',name:'User: 01',password:'pass01'},
+      {id:'user02',name:'User: 02',password:'pass02'},
+      {id:'user03',name:'User: 03',password:'pass03'}
+    ];
+    // If already logged in, skip login
+    if(localStorage.getItem('srUser')){window.location.href='money-collection.html'}
+    document.getElementById('pwd').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+    document.getElementById('uname').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pwd').focus()});
+    function doLogin(){
+      const u=document.getElementById('uname').value.trim();
+      const p=document.getElementById('pwd').value;
+      if(!u||!p){sT('⚠️ Enter username and password');return}
+      const found=USERS.find(x=>x.id===u&&x.password===p);
+      if(!found){sT('❌ Wrong username or password');return}
+      localStorage.setItem('srUser',JSON.stringify({id:found.id,name:found.name}));
+      window.location.href='money-collection.html';
+    }
+    function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+  </script>
+</body>
+</html>
