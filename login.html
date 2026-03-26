@@ -106,7 +106,7 @@
     {id:'user02',name:'Suresh M',   password:'suresh123',phone:'9123456780',address:'Madurai, TN',   role:'user'},
     {id:'user03',name:'Priya S',    password:'priya123', phone:'9988776655',address:'Coimbatore, TN',role:'user'}
   ];
-  try{const _ex=localStorage.getItem('srUser');if(_ex){const _eu=JSON.parse(_ex);window.location.href=_eu.role==='admin'?'admin-users.html':'money-collection.html'}}catch(e){localStorage.removeItem('srUser')}
+  try{const _ex=localStorage.getItem('srUser');if(_ex){const _eu=JSON.parse(_ex);window.location.href=_eu.role==='admin'?'admin-users.html':'collection.html'}}catch(e){localStorage.removeItem('srUser')}
   function loadUsers(){const saved=localStorage.getItem('srUsers');if(saved){try{allUsers=JSON.parse(saved)}catch(e){allUsers=[...DEFAULT_USERS]}}else{allUsers=[...DEFAULT_USERS];localStorage.setItem('srUsers',JSON.stringify(allUsers))}buildDrop()}
   function buildDrop(){const sel=document.getElementById('userDrop');sel.innerHTML='<option value="">-- Choose your name --</option>';allUsers.filter(u=>u.role!=='admin').forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;sel.appendChild(o)})}
   function setRole(role){
@@ -135,7 +135,7 @@
     const user=allUsers.find(u=>u.id===uid);if(!user){sT('⚠️ User not found');return}
     if(user.password!==pwd){sT('❌ Wrong password');return}
     localStorage.setItem('srUser',JSON.stringify({id:user.id,name:user.name,role:'user',phone:user.phone||'',address:user.address||''}));
-    sT('✅ Login successful!');setTimeout(()=>{window.location.href='money-collection.html'},500);
+    sT('✅ Login successful!');setTimeout(()=>{window.location.href='collection.html'},500);
   }
   document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
   function sT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
