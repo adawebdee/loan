@@ -940,39 +940,93 @@ function isOD(c){
 }
 
 /* ════════════════════════════════════════
-   FIREBASE REALTIME LISTENERS
+   FIREBASE REALTIME LISTENERS (FIXED)
 ════════════════════════════════════════ */
 function chkLD(){
-  loadCount++;advLD(30+loadCount*20,'Loading...');
-  if(loadCount>=3){
-    advLD(100,'Ready!');
+  loadCount++;
+  advLD(30 + loadCount * 17, 'Loading...');
+  if(loadCount >= 3){
+    advLD(100, 'Ready!');
     setTimeout(()=>{
       ldEl.classList.add('hide');
-      setTimeout(()=>ldEl.style.display='none',500);
-      dataReady=true;uAll();
-    },500);
+      setTimeout(()=>{ ldEl.style.display='none'; }, 500);
+      dataReady = true;
+      uAll();
+    }, 600);
   }
 }
-db.ref('settings/prefixes').on('value',s=>{PX=Array.isArray(s.val())&&s.val().length?s.val():[];chkLD();if(dataReady)uAll()});
-db.ref('customers').on('value',s=>{AC=s.val()||{};chkLD();if(dataReady)uAll()});
-db.ref('payments').on('value',s=>{AP=s.val()||{};chkLD();if(dataReady)uAll()});
-db.ref('expenses').on('value',s=>{EX=s.val()?Object.values(s.val()):[];if(dataReady){}});
-db.ref('deletedPayments').on('value',s=>{
-  DL_raw=s.val()||{};
-  const DL=Object.values(DL_raw);
-  const nc=DL.length;
-  if(dataReady&&nc>prevDelCount){
-    const b=document.getElementById('delBadge');
-    b.textContent=nc-prevDelCount;b.classList.add('show');
+
+/* Force loader to close after 8 seconds no matter what */
+setTimeout(()=>{
+  if(!dataReady){
+    advLD(100,'Ready!');
+    ldEl.classList.add('hide');
+    setTimeout(()=>{ ldEl.style.display='none'; }, 500);
+    dataReady = true;
+    uAll();
   }
-  prevDelCount=nc;
-  if(dataReady)renderDelLog();
+}, 8000);
+
+db.ref('settings/prefixes').on('value', s=>{
+  try{
+    const v = s.val();
+    PX = Array.isArray(v) && v.length ? v : [];
+  } catch(e){ PX = []; }
+  chkLD();
+  if(dataReady) uAll();
+}, err=>{
+  console.warn('prefixes error:', err);
+  PX = [];
+  chkLD();
+  if(dataReady) uAll();
 });
 
-function uAll(){
-  initDateLabels();updateStats();updateCollStrips();
-  renderLive();renderLocTabs();renderCust();updateCharts();
-}
+db.ref('customers').on('value', s=>{
+  try{ AC = s.val() || {}; } catch(e){ AC = {}; }
+  chkLD();
+  if(dataReady) uAll();
+}, err=>{
+  console.warn('customers error:', err);
+  AC = {};
+  chkLD();
+  if(dataReady) uAll();
+});
+
+db.ref('payments').on('value', s=>{
+  try{ AP = s.val() || {}; } catch(e){ AP = {}; }
+  chkLD();
+  if(dataReady) uAll();
+}, err=>{
+  console.warn('payments error:', err);
+  AP = {};
+  chkLD();
+  if(dataReady) uAll();
+});
+
+db.ref('expenses').on('value', s=>{
+  try{ EX = s.val() ? Object.values(s.val()) : []; } catch(e){ EX = []; }
+  if(dataReady){}
+}, err=>{
+  console.warn('expenses error:', err);
+  EX = [];
+});
+
+db.ref('deletedPayments').on('value', s=>{
+  try{
+    DL_raw = s.val() || {};
+    const DL = Object.values(DL_raw);
+    const nc = DL.length;
+    if(dataReady && nc > prevDelCount){
+      const b = document.getElementById('delBadge');
+      if(b){ b.textContent = nc - prevDelCount; b.classList.add('show'); }
+    }
+    prevDelCount = nc;
+  } catch(e){ DL_raw = {}; }
+  if(dataReady) renderDelLog();
+}, err=>{
+  console.warn('deletedPayments error:', err);
+  DL_raw = {};
+});
 
 /* ════════════════════════════════════════
    DATE LABELS
