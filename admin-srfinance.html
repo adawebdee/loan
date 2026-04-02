@@ -429,7 +429,7 @@ header{position:sticky;top:0;z-index:80;background:rgba(4,8,15,.96);border-botto
 .bd{background:rgba(240,82,82,.08);color:#f05252;border:1px solid rgba(240,82,82,.2)}
 .bdr-btn{background:rgba(240,82,82,.06);color:#f05252;border:1px solid rgba(240,82,82,.18);border-radius:7px;padding:5px 9px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:3px}
 .bsm{padding:4px 8px;font-size:9px;min-height:26px;border-radius:6px}
-.nd{text-align:center;padding:30px 14px;color:var(--t4);background:var(--s1);border-radius:11px;border.nd-i{font-size:30px;margin-bottom:6px}.nd-t{font-size:11px;font-weight:600}
+.nd{text-align:center;padding:30px 14px;color:var(--t4);background:var(--s1);border-radius:11px;border:1px solid var(--bdr)}.nd-i{font-size:30px;margin-bottom:6px}.nd-t{font-size:11px;font-weight:600}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--bdr);color:var(--text);padding:8px 15px;border-radius:9px;font-size:11px;font-weight:700;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:var(--sh)}
 .toast.on{opacity:1}
 </style>
@@ -607,7 +607,7 @@ function closeLd(){advLD(100,'Ready!');setTimeout(()=>{ldEl.classList.add('gone'
 setTimeout(()=>{if(!dataReady){dataReady=true;closeLd();uAll()}},7000);
 advLD(10,'Checking auth...');
 
-/* ══ AUTH ���═ */
+/* ══ AUTH ══ */
 const _u=localStorage.getItem('srUser');
 if(!_u)location.href='login.html';
 const CU=_u?JSON.parse(_u):{name:'Admin',role:'admin'};
@@ -623,7 +623,7 @@ let isDark=true;
 function applyTheme(d){
   isDark=d;
   document.documentElement.setAttribute('data-theme',d?'dark':'light');
-  document.body.style.background='';/* reset so CSS var kicks in */
+  document.body.style.background='';
   const t=document.getElementById('thTog');
   t.classList.toggle('on',d);
   t.querySelector('.togthumb').textContent=d?'🌙':'☀️';
@@ -699,9 +699,9 @@ function lastPD(id){const ps=gPays(id);if(!ps.length)return null;return ps.sort(
 function lastCB(id){const ps=gPays(id);if(!ps.length)return'—';return ps.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0))[0].collectedBy||'—'}
 function getCust(id){return AC[SK(id)]||null}
 
-/* ══ THE ONLY FIX — Number() cast fixes string "12000" stored by Firebase ══ */
+/* ══ STATUS ══ */
 function custStatus(c){
-  const t=Number(c.totalPayable)||0;  /* KEY FIX */
+  const t=Number(c.totalPayable)||0;
   const paid=calcPaid(c.customerId);
   const pn=Math.max(0,t-paid);
   const pct=t>0?Math.min(100,Math.round(paid/t*100)):0;
@@ -735,7 +735,19 @@ function addEditPfx(){const v=(document.getElementById('ecPfxNew').value||'').to
 /* ══ FIREBASE LISTENERS ══ */
 function tryClose(){if(loadDone.c&&loadDone.p&&loadDone.x&&!dataReady){dataReady=true;advLD(100,'Ready!');setTimeout(()=>{closeLd();uAll()},300)}}
 db.ref('settings/prefixes').on('value',s=>{try{const v=s.val();PX=Array.isArray(v)&&v.length?v:[]}catch(e){PX=[]}if(dataReady)uAll()});
-db.ref('customers').on('value',s=>{try{AC=s.val()||{}}catch(e){AC={}}advLD(50,'Customers...');loadDone.c=true;tryClose();if(dataReady)uAll()},()=>{AC={};loadDone.c=true;tryClose()});
+
+/* ── CHANGE 2: log unique status values once after customers load ── */
+db.ref('customers').on('value',s=>{
+  try{AC=s.val()||{}}catch(e){AC={}}
+  const uniqueStatuses=[...new Set(
+    Object.values(AC)
+      .map(c=>String(c.status||'').trim().toLowerCase())
+      .filter(Boolean)
+  )];
+  console.log('[SR Finance] Unique customer status values:',uniqueStatuses);
+  advLD(50,'Customers...');loadDone.c=true;tryClose();if(dataReady)uAll()
+},()=>{AC={};loadDone.c=true;tryClose()});
+
 db.ref('payments').on('value',s=>{try{AP=s.val()||{}}catch(e){AP={}}advLD(75,'Payments...');loadDone.p=true;tryClose();if(dataReady)uAll()},()=>{AP={};loadDone.p=true;tryClose()});
 db.ref('expenses').on('value',s=>{try{EX=s.val()?Object.values(s.val()):[]}catch(e){EX=[]}advLD(90,'Almost...');loadDone.x=true;tryClose()},()=>{EX=[];loadDone.x=true;tryClose()});
 db.ref('deletedPayments').on('value',s=>{try{DL_raw=s.val()||{};const nc=Object.keys(DL_raw).length;if(dataReady&&nc>prevDelCnt){const b=document.getElementById('delBadge');if(b){b.textContent=nc-prevDelCnt;b.classList.add('on')}}prevDelCnt=nc}catch(e){DL_raw={}}if(dataReady)renderDel()});
@@ -762,7 +774,15 @@ initDates();
 function updateStats(){
   const cs=Object.values(AC);
   let pd=0,np=0,od=0,cp=0;
-  cs.forEach(c=>{const{dn,ov,tp}=custStatus(c);if(dn)cp++;else if(ov)od++;else if(tp)pd++;else np++;});
+  cs.forEach(c=>{
+    const{dn,ov,tp}=custStatus(c);
+    /* count as completed if calculated done OR status field === 'completed' */
+    const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
+    if(isCompleted)cp++;
+    else if(ov)od++;
+    else if(tp)pd++;
+    else np++;
+  });
   document.getElementById('stTotal').textContent=cs.length;
   document.getElementById('stPaid').textContent=pd;
   document.getElementById('stNotPaid').textContent=np;
@@ -801,8 +821,20 @@ function dCH(k){if(CH[k]){CH[k].destroy();delete CH[k]}}
 const TT={backgroundColor:'#080f1a',titleColor:'#f0f4ff',bodyColor:'#7a8fa6',borderColor:'rgba(79,142,247,.13)',borderWidth:1,padding:8,cornerRadius:6};
 function updateCharts(){bTrend();bPie();bExpTrend();bLoc();bLocStat()}
 function bTrend(){const days=parseInt(document.getElementById('trendDD').value)||7;document.getElementById('trendSub').textContent=`Last ${days} days`;const labels=[],data=[],now=getIST();for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);d.setHours(0,0,0,0);const de=new Date(d);de.setHours(23,59,59,999);labels.push(`${d.getDate()} ${MO[d.getMonth()]}`);data.push(paysInRng(d,de).reduce((t,p)=>t+(Number(p.amount)||0),0))}dCH('tr');const ctx=document.getElementById('cTrend').getContext('2d');const g=ctx.createLinearGradient(0,0,0,260);g.addColorStop(0,'rgba(79,142,247,.65)');g.addColorStop(1,'rgba(79,142,247,.03)');CH['tr']=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'₹',data,backgroundColor:g,borderColor:'#4f8ef7',borderWidth:2,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' ₹'+Number(c.raw).toLocaleString('en-IN')}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{size:8}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{size:8},callback:v=>'₹'+Number(v).toLocaleString('en-IN')}}}}})}
-function bPie(){const cs=Object.values(AC);let pd=0,np=0,od=0,cp=0;cs.forEach(c=>{const{dn,ov,tp}=custStatus(c);if(dn)cp++;else if(ov)od++;else if(tp)pd++;else np++;});const labels=['Paid Today','Not Paid','Overdue','Completed'],data=[pd,np,od,cp],colors=['#22d45e','#fbbf24','#f05252','#4f8ef7'];dCH('pie');const ctx=document.getElementById('cPie').getContext('2d');CH['pie']=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:2,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.label}: ${c.raw} (${Math.round(c.raw/(data.reduce((a,b)=>a+b,0)||1)*100)}%)`}}}}});document.getElementById('pieLeg').innerHTML=labels.map((l,i)=>`<div class="pl-item"><div class="pl-dot" style="background:${colors[i]}"></div><span class="pl-label">${l}</span><span class="pl-val" style="color:${colors[i]}">${data[i]}</span></div>`).join('')}
-function bExpTrend(){const mode=document.getElementById('expMode').value;const mp=document.getElementById('expMonthPick');mp.style.display=mode==='month'?'inline-block':'none';let labels=[],data=[];if(mode==='month'){const v=mp.value;if(!v){document.getElementById('expTrendSub').textContent='Select month';return}const[y,m]=v.split('-').map(Number);document.getElementById('expTrendSub').textContent=`${MO[m-1]} ${y}`;const days=new Date(y,m,0).getDate();for(let i=1;i<=days;i++){const iso=`${y}-${String(m).padStart(2,'0')}-${String(i).padStart(2,'0')}`;labels.push(`${i}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}else{const days=parseInt(mode)||28;document.getElementById('expTrendSub').textContent=`Last ${days} days`;const now=getIST();for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const iso=fmtISO(d);labels.push(`${d.getDate()} ${MO[d.getMonth()]}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}const total=data.reduce((a,b)=>a+b,0),avg=data.filter(v=>v>0).length?Math.round(total/data.filter(v=>v>0).length):0,mx=Math.max(...data,0);document.getElementById('expStatRow').innerHTML=`<div class="exp-si">Total:<b>${fmtM(total)}</b></div><div class="exp-si">Avg:<b>${fmtM(avg)}</b></div><div class="exp-si">Peak:<b>${fmtM(mx)}</b></div>`;dCH('expt');const ctx=document.getElementById('cExpTrend').getContext('2d');const g=ctx.createLinearGradient(0,0,0,240);g.addColorStop(0,'rgba(240,82,82,.28)');g.addColorStop(1,'rgba(240,82,82,.02)');CH['expt']=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Expenses',data,borderColor:'#f05252',backgroundColor:g,borderWidth:2,pointRadius:2,pointBackgroundColor:'#f05252',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' ₹'+Number(c.raw).toLocaleString('en-IN')}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},maxTicksLimit:10}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},callback:v=>'₹'+Number(v).toLocaleString('en-IN')},beginAtZero:true}}}})}
+function bPie(){
+  const cs=Object.values(AC);
+  let pd=0,np=0,od=0,cp=0;
+  cs.forEach(c=>{
+    const{dn,ov,tp}=custStatus(c);
+    const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
+    if(isCompleted)cp++;else if(ov)od++;else if(tp)pd++;else np++;
+  });
+  const labels=['Paid Today','Not Paid','Overdue','Completed'],data=[pd,np,od,cp],colors=['#22d45e','#fbbf24','#f05252','#4f8ef7'];
+  dCH('pie');const ctx=document.getElementById('cPie').getContext('2d');
+  CH['pie']=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:2,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.label}: ${c.raw} (${Math.round(c.raw/(data.reduce((a,b)=>a+b,0)||1)*100)}%)`}}}}});
+  document.getElementById('pieLeg').innerHTML=labels.map((l,i)=>`<div class="pl-item"><div class="pl-dot" style="background:${colors[i]}"></div><span class="pl-label">${l}</span><span class="pl-val" style="color:${colors[i]}">${data[i]}</span></div>`).join('')
+}
+function bExpTrend(){const mode=document.getElementById('expMode').value;const mp=document.getElementById('expMonthPick');mp.style.display=mode==='month'?'inline-block':'none';let labels=[],data=[];if(mode==='month'){const v=mp.value;if(!v){document.getElementById('expTrendSub').textContent='Select month';return}const[y,m]=v.split('-').map(Number);document.getElementById('expTrendSub').textContent=`${MO[m-1]} ${y}`;const days=new Date(y,m,0).getDate();for(let i=1;i<=days;i++){const iso=`${y}-${String(m).padStart(2,'0')}-${String(i).padStart(2,'0')}`;labels.push(`${i}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}else{const days=parseInt(mode)||28;document.getElementById('expTrendSub').textContent=`Last ${days} days`;const now=getIST();for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const iso=fmtISO(d);labels.push(`${d.getDate()} ${MO[d.getMonth()]}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}const total=data.reduce((a,b)=>a+b,0),avg=data.filter(v=>v>0).length?Math.round(total/data.filter(v=>v>0).length):0,mx=Math.max(...data,0);document.getElementById('expStatRow').innerHTML=`<div class="exp-si">Total:<b>${fmtM(total)}</b></div><div class="exp-si">Avg:<b>${fmtM(avg)}</b></div><div class="exp-si">Peak:<b>${fmtM(mx)}</b></div>`;dCH('expt');const ctx=document.getElementById('cExpTrend').getContext('2d');const g=ctx.createLinearGradient(0,0,0,240);g.addColorStop(0,'rgba(240,82,82,.28)');g.addColorStop(1,'rgba(240,82,82,.02)');CH['expt']=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Expenses',data,borderColor:'#f05252',backgroundColor:g,borderWidth:2,pointRadius:2,pointBackgroundColor:'#f05252',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' ₹'+Number(c.raw).toLocaleString('en-IN')}}},scores:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},maxTicksLimit:10}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},callback:v=>'₹'+Number(v).toLocaleString('en-IN')},beginAtZero:true}}}})}
 function bLoc(){const{s,e}=getRng(document.getElementById('locDD').value);const pays=paysInRng(s,e);const locs=PX.length?PX:['ALL'];const data=locs.map(p=>pays.filter(pay=>{if(!PX.length)return true;const c=getCust(pay.customerId);return c&&(c.customerId||'').split('-')[0]===p}).reduce((t,pay)=>t+(Number(pay.amount)||0),0));dCH('loc');const ctx=document.getElementById('cLoc').getContext('2d');CH['loc']=new Chart(ctx,{type:'bar',data:{labels:locs,datasets:[{label:'Collected',data,backgroundColor:locs.map((_,i)=>BCOLS[i%BCOLS.length]+'88'),borderColor:locs.map((_,i)=>BCOLS[i%BCOLS.length]),borderWidth:2,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' ₹'+Number(c.raw).toLocaleString('en-IN')}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{size:8},callback:v=>'₹'+Number(v).toLocaleString('en-IN')}},y:{grid:{display:false},ticks:{color:'#b8c5d8',font:{size:9,weight:'700'}}}}}})}
 function bLocStat(){const{s,e}=getRng(document.getElementById('locStatDD').value);const locs=PX.length?PX:['ALL'];const pd=[],nd=[];locs.forEach(p=>{let pc=0,nc=0;Object.values(AC).forEach(c=>{if(PX.length&&(c.customerId||'').split('-')[0]!==p)return;const{dn,ov,tp}=custStatus(c);if(dn)return;tp?pc++:nc++;});pd.push(pc);nd.push(nc);});dCH('ls');const ctx=document.getElementById('cLocStat').getContext('2d');CH['ls']=new Chart(ctx,{type:'bar',data:{labels:locs,datasets:[{label:'Paid',data:pd,backgroundColor:'rgba(34,212,94,.4)',borderColor:'#22d45e',borderWidth:2,borderRadius:4},{label:'Not Paid',data:nd,backgroundColor:'rgba(240,82,82,.35)',borderColor:'#f05252',borderWidth:2,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#b8c5d8',font:{size:9,weight:'700'},boxWidth:9},position:'top'},tooltip:{...TT}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#b8c5d8',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{size:8},stepSize:1}}}}})}
 
@@ -826,7 +858,7 @@ function renderLocTabs(){
 function setF(f){aFilter=f;custPage=1;document.querySelectorAll('.ft').forEach(t=>t.classList.toggle('on',t.dataset.f===f));renderCust()}
 function onSearch(){custPage=1;renderCust()}
 
-/* ══ RENDER CUSTOMERS — completed fix applied ══ */
+/* ══ RENDER CUSTOMERS ══ */
 function renderCust(){
   const grid=document.getElementById('custGrid');
   const lc=document.getElementById('listCount');
@@ -843,7 +875,9 @@ function renderCust(){
     return{...c,_dn:st.dn,_ov:st.ov,_tp:st.tp,_paid:st.paid,_t:st.t,_pn:st.pn,_pct:st.pct,_ta:st.ta};
   });
   let filtered;
-  if(aFilter==='completed')      filtered=ws.filter(c=>c._dn===true);
+  /* ── CHANGE 1: completed filter uses both calculated _dn and raw status field ── */
+  if(aFilter==='completed')
+    filtered=ws.filter(c=>c._dn===true||String(c.status||'').trim().toLowerCase()==='completed');
   else if(aFilter==='paid')      filtered=ws.filter(c=>c._tp===true);
   else if(aFilter==='overdue')   filtered=ws.filter(c=>c._ov===true);
   else if(aFilter==='notpaid')   filtered=ws.filter(c=>!c._tp&&!c._dn&&!c._ov);
@@ -1195,7 +1229,11 @@ function buildReport(){
   const expInR=EX.filter(x=>{if(!x.date)return false;const d=new Date(x.date+'T00:00:00');return d>=s&&d<=e});
   const totalExp=expInR.reduce((t,x)=>t+(Number(x.amount)||0),0);
   let paidC=0,npC=0,odC=0,cpC=0;
-  cs.forEach(c=>{const{dn,ov,tp}=custStatus(c);if(dn)cpC++;else if(ov)odC++;else if(tp)paidC++;else npC++;});
+  cs.forEach(c=>{
+    const{dn,ov,tp}=custStatus(c);
+    const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
+    if(isCompleted)cpC++;else if(ov)odC++;else if(tp)paidC++;else npC++;
+  });
   document.getElementById('rStats').innerHTML=`
     <div class="sc c1"><div class="sc-ico">👥</div><div class="sc-v">${cs.length}</div><div class="sc-l">Total</div></div>
     <div class="sc c2"><div class="sc-ico">💰</div><div class="sc-v">${fmtM(totalC)}</div><div class="sc-l">Collected</div></div>
@@ -1217,8 +1255,9 @@ function buildRptTable(cs){
   const start=(rPage-1)*RPP,slice=sorted.slice(start,start+RPP);
   document.getElementById('rBody').innerHTML=slice.map((c,i)=>{
     const{paid,t,pn,pct,dn,ov,tp}=custStatus(c);
+    const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
     let st='Pending',sc='#fbbf24';
-    if(dn){st='Completed';sc='#4f8ef7'}else if(ov){st='Overdue';sc='#f05252'}else if(tp){st='Paid';sc='#22d45e'}
+    if(isCompleted){st='Completed';sc='#4f8ef7'}else if(ov){st='Overdue';sc='#f05252'}else if(tp){st='Paid';sc='#22d45e'}
     return`<tr>
       <td style="color:var(--t4);font-size:9px;text-align:center">${start+i+1}</td>
       <td style="color:#4f8ef7;font-weight:800">${E(c.customerId)}</td>
@@ -1244,7 +1283,8 @@ function exportCSV(){
   const hdr=['ID','Name','Parent','Phone','Aadhar','Address','State','City','Loan','Interest%','TotalPayable','Installment','PayType','Paid','Pending','Progress%','Status','StartDate','LastPay','By','LoanNumber'];
   const rows=cs.map(c=>{
     const{paid,t,pn,pct,dn,ov,tp}=custStatus(c);
-    let st='Pending';if(dn)st='Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
+    const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
+    let st='Pending';if(isCompleted)st='Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
     return[c.customerId||'',c.name||'',c.parentName||'',c.phone||'',c.aadhar||'',(c.address||'').replace(/,/g,';'),c.state||'',c.city||'',c.loanAmount||0,c.interestRate||0,t,c.installmentAmount||0,c.paymentType||'monthly',paid,pn,pct,st,c.date||'',lastPD(c.customerId)||'',lastCB(c.customerId),c.loanNumber||1]
       .map(val=>'"'+String(val).replace(/"/g,'""')+'"').join(',');
   });
@@ -1257,7 +1297,8 @@ function downloadCSVReport(){
   const hdr=['#','ID','Name','Phone','Pay Type','Loan Amount','Total Payable','Paid','Pending','Progress %','Status','Start Date','Last Payment','Collected By','Loan Number'];
   const rows=cs.sort((a,b)=>(parseInt((b.customerId||'').split('-').pop())||0)-(parseInt((a.customerId||'').split('-').pop())||0)).map((c,i)=>{
     const{paid,t,pn,pct,dn,ov,tp}=custStatus(c);
-    let st='Pending';if(dn)st='Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
+    const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
+    let st='Pending';if(isCompleted)st='Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
     return[i+1,c.customerId||'',c.name||'',c.phone||'',c.paymentType||'monthly',c.loanAmount||0,t,paid,pn,pct,st,c.date||'',lastPD(c.customerId)||'',lastCB(c.customerId),c.loanNumber||1]
       .map(val=>'"'+String(val).replace(/"/g,'""')+'"').join(',');
   });
