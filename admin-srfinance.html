@@ -880,7 +880,7 @@ function renderCust(){
   });
 
   let filtered;
-  // ✅ Completed = (fully paid) OR (status field === "completed") so it matches Reports
+  // Completed = (fully paid) OR (status === completed)
   if(aFilter==='completed')
     filtered=ws.filter(c=>c._dn===true || String(c.status||'').trim().toLowerCase()==='completed');
   else if(aFilter==='paid')
@@ -959,7 +959,7 @@ function renderCust(){
       <div class="cacts" style="grid-template-columns:repeat(3,1fr)">
         <button class="ca a-w" onclick="openPay('${E(c.customerId)}',${pn})">💰 Pay</button>
         <button class="ca a-b" onclick="openDet('${E(c.customerId)}')">ℹ️ Info</button>
-        <button class="ca a-g" onclick="openCall('${E(c.name||'')}','${E(c.phone||'')}')">📞 Call</button>
+        <button class="ca a-g" onclick="openCall(${JSON.stringify(c.name||'')},${JSON.stringify(c.phone||'')})">📞 Call</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:0 7px 6px">
         ${dn
