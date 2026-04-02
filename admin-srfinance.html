@@ -863,6 +863,7 @@ function renderCust(){
   const grid=document.getElementById('custGrid');
   const lc=document.getElementById('listCount');
   const q=(document.getElementById('srch').value||'').trim().toLowerCase();
+
   let cs=Object.values(AC);
 
   if(!cs.length){
@@ -872,42 +873,49 @@ function renderCust(){
     return;
   }
 
-  if(aLoc) cs=cs.filter(c=>(c.customerId||'').split('-')[0]===aLoc);
+  // location filter
+  if(aLoc) cs = cs.filter(c => (c.customerId||'').split('-')[0] === aLoc);
 
-  const ws=cs.map(c=>{
+  // compute helper flags (your existing logic)
+  const ws = cs.map(c=>{
     const st=custStatus(c);
     return {...c,_dn:st.dn,_ov:st.ov,_tp:st.tp,_paid:st.paid,_t:st.t,_pn:st.pn,_pct:st.pct,_ta:st.ta};
   });
 
+  // ✅ FILTERS (ONLY completed uses c.status; others unchanged)
   let filtered;
-  // Completed = (fully paid) OR (status === completed)
-  if(aFilter==='completed')
-    filtered=ws.filter(c=>c._dn===true || String(c.status||'').trim().toLowerCase()==='completed');
-  else if(aFilter==='paid')
-    filtered=ws.filter(c=>c._tp===true);
-  else if(aFilter==='overdue')
-    filtered=ws.filter(c=>c._ov===true);
-  else if(aFilter==='notpaid')
-    filtered=ws.filter(c=>!c._tp&&!c._dn&&!c._ov);
-  else
-    filtered=ws;
+  if(aFilter==='completed'){
+    filtered = ws.filter(c => String(c.status||'').trim().toLowerCase() === 'completed');
+  }else if(aFilter==='paid'){
+    filtered = ws.filter(c => c._tp === true);
+  }else if(aFilter==='overdue'){
+    filtered = ws.filter(c => c._ov === true);
+  }else if(aFilter==='notpaid'){
+    filtered = ws.filter(c => !c._tp && !c._dn && !c._ov);
+  }else{
+    filtered = ws;
+  }
 
-  if(q) filtered=filtered.filter(c=>
-    (c.name||'').toLowerCase().includes(q) ||
-    (c.customerId||'').toLowerCase().includes(q) ||
-    (c.phone||'').includes(q)
-  );
+  // search filter
+  if(q){
+    filtered = filtered.filter(c =>
+      (c.name||'').toLowerCase().includes(q) ||
+      (c.customerId||'').toLowerCase().includes(q) ||
+      (c.phone||'').includes(q)
+    );
+  }
 
+  // sort (same as your existing behavior)
   filtered.sort((a,b)=>{
-    if(a._dn&&!b._dn) return 1;
-    if(!a._dn&&b._dn) return -1;
+    if(a._dn && !b._dn) return 1;
+    if(!a._dn && b._dn) return -1;
     return (parseInt((b.customerId||'').split('-').pop())||0) - (parseInt((a.customerId||'').split('-').pop())||0);
   });
 
-  const total=filtered.length,pages=Math.max(1,Math.ceil(total/PP));
+  // paginate
+  const total=filtered.length, pages=Math.max(1,Math.ceil(total/PP));
   if(custPage>pages) custPage=1;
-
-  const start=(custPage-1)*PP,slice=filtered.slice(start,start+PP);
+  const start=(custPage-1)*PP, slice=filtered.slice(start,start+PP);
 
   if(!slice.length){
     lc.style.display='none';
@@ -919,18 +927,17 @@ function renderCust(){
   lc.style.display='block';
   lc.innerHTML=`Showing <b>${start+1}–${Math.min(start+PP,total)}</b> of <b>${total}</b>${aFilter!=='all'?' ('+aFilter+')':''}`;
 
-  grid.innerHTML=slice.map(c=>{
+  // render cards (unchanged)
+  grid.innerHTML = slice.map(c=>{
     const{_paid:paid,_t:t,_pn:pn,_pct:pct,_dn:dn,_ov:ov,_tp:tp,_ta:ta}=c;
     const sid=SI(c.customerId);
     const pcc=pct>=100?'#22d45e':pct>=50?'#fbbf24':'#f05252';
     const pbc=pct>=100?'pg':pct>=50?'po':'pr';
     const ln=c.loanNumber||1;
-
     let bdgC='bpn',bdgT='⏳ Pending';
     if(dn){bdgC='bcp';bdgT='🏁 Completed'}
     else if(ov){bdgC='bod';bdgT='🔴 Overdue'}
     else if(tp){bdgC='bpd';bdgT='✅ Paid Today'}
-
     const avC=dn?'av-b':ov?'av-r':tp?'av-g':'av-p';
     const ccC=dn?'sb':ov?'sr':tp?'sg':'sp';
     const sd=c.date?fmtD(c.date):(c.savedAt?fmtD(new Date(c.savedAt).toISOString().split('T')[0]):'—');
@@ -959,7 +966,7 @@ function renderCust(){
       <div class="cacts" style="grid-template-columns:repeat(3,1fr)">
         <button class="ca a-w" onclick="openPay('${E(c.customerId)}',${pn})">💰 Pay</button>
         <button class="ca a-b" onclick="openDet('${E(c.customerId)}')">ℹ️ Info</button>
-        <button class="ca a-g" onclick="openCall(${JSON.stringify(c.name||'')},${JSON.stringify(c.phone||'')})">📞 Call</button>
+        <button class="ca a-g" onclick="openCall('${E(c.name||'')}','${E(c.phone||'')}')">📞 Call</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:0 7px 6px">
         ${dn
