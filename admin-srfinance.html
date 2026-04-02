@@ -863,7 +863,6 @@ function renderCust(){
   const grid=document.getElementById('custGrid');
   const lc=document.getElementById('listCount');
   const q=(document.getElementById('srch').value||'').trim().toLowerCase();
-
   let cs=Object.values(AC);
 
   if(!cs.length){
@@ -873,49 +872,49 @@ function renderCust(){
     return;
   }
 
-  // location filter
-  if(aLoc) cs = cs.filter(c => (c.customerId||'').split('-')[0] === aLoc);
+  if(aLoc) cs=cs.filter(c=>(c.customerId||'').split('-')[0]===aLoc);
 
-  // compute helper flags (your existing logic)
-  const ws = cs.map(c=>{
+  const ws=cs.map(c=>{
     const st=custStatus(c);
     return {...c,_dn:st.dn,_ov:st.ov,_tp:st.tp,_paid:st.paid,_t:st.t,_pn:st.pn,_pct:st.pct,_ta:st.ta};
   });
 
-  // ✅ FILTERS (ONLY completed uses c.status; others unchanged)
   let filtered;
+  // ✅ Completed: show both “fully paid” (like Reports) AND status field === completed
   if(aFilter==='completed'){
-    filtered = ws.filter(c => String(c.status||'').trim().toLowerCase() === 'completed');
-  }else if(aFilter==='paid'){
-    filtered = ws.filter(c => c._tp === true);
-  }else if(aFilter==='overdue'){
-    filtered = ws.filter(c => c._ov === true);
-  }else if(aFilter==='notpaid'){
-    filtered = ws.filter(c => !c._tp && !c._dn && !c._ov);
-  }else{
-    filtered = ws;
+    filtered=ws.filter(c=>
+      c._dn===true || String(c.status||'').trim().toLowerCase()==='completed'
+    );
+  } else if(aFilter==='paid'){
+    filtered=ws.filter(c=>c._tp===true);
+  } else if(aFilter==='overdue'){
+    filtered=ws.filter(c=>c._ov===true);
+  } else if(aFilter==='notpaid'){
+    filtered=ws.filter(c=>!c._tp&&!c._dn&&!c._ov);
+  } else {
+    filtered=ws;
   }
 
-  // search filter
   if(q){
-    filtered = filtered.filter(c =>
+    filtered=filtered.filter(c=>
       (c.name||'').toLowerCase().includes(q) ||
       (c.customerId||'').toLowerCase().includes(q) ||
       (c.phone||'').includes(q)
     );
   }
 
-  // sort (same as your existing behavior)
   filtered.sort((a,b)=>{
-    if(a._dn && !b._dn) return 1;
-    if(!a._dn && b._dn) return -1;
+    if(a._dn&&!b._dn) return 1;
+    if(!a._dn&&b._dn) return -1;
     return (parseInt((b.customerId||'').split('-').pop())||0) - (parseInt((a.customerId||'').split('-').pop())||0);
   });
 
-  // paginate
-  const total=filtered.length, pages=Math.max(1,Math.ceil(total/PP));
+  const total=filtered.length;
+  const pages=Math.max(1,Math.ceil(total/PP));
   if(custPage>pages) custPage=1;
-  const start=(custPage-1)*PP, slice=filtered.slice(start,start+PP);
+
+  const start=(custPage-1)*PP;
+  const slice=filtered.slice(start,start+PP);
 
   if(!slice.length){
     lc.style.display='none';
@@ -927,68 +926,79 @@ function renderCust(){
   lc.style.display='block';
   lc.innerHTML=`Showing <b>${start+1}–${Math.min(start+PP,total)}</b> of <b>${total}</b>${aFilter!=='all'?' ('+aFilter+')':''}`;
 
-  // render cards (unchanged)
-  grid.innerHTML = slice.map(c=>{
-    const{_paid:paid,_t:t,_pn:pn,_pct:pct,_dn:dn,_ov:ov,_tp:tp,_ta:ta}=c;
-    const sid=SI(c.customerId);
-    const pcc=pct>=100?'#22d45e':pct>=50?'#fbbf24':'#f05252';
-    const pbc=pct>=100?'pg':pct>=50?'po':'pr';
-    const ln=c.loanNumber||1;
-    let bdgC='bpn',bdgT='⏳ Pending';
-    if(dn){bdgC='bcp';bdgT='🏁 Completed'}
-    else if(ov){bdgC='bod';bdgT='🔴 Overdue'}
-    else if(tp){bdgC='bpd';bdgT='✅ Paid Today'}
-    const avC=dn?'av-b':ov?'av-r':tp?'av-g':'av-p';
-    const ccC=dn?'sb':ov?'sr':tp?'sg':'sp';
-    const sd=c.date?fmtD(c.date):(c.savedAt?fmtD(new Date(c.savedAt).toISOString().split('T')[0]):'—');
-    const ps=gPays(c.customerId).sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const pt=(c.paymentType||'monthly')==='weekly'?'W':'M';
+  // ✅ Render cards (with safe openCall to avoid broken HTML)
+  try{
+    grid.innerHTML = slice.map(c=>{
+      const{_paid:paid,_t:t,_pn:pn,_pct:pct,_dn:dn,_ov:ov,_tp:tp,_ta:ta}=c;
+      const sid=SI(c.customerId);
+      const pcc=pct>=100?'#22d45e':pct>=50?'#fbbf24':'#f05252';
+      const pbc=pct>=100?'pg':pct>=50?'po':'pr';
+      const ln=c.loanNumber||1;
 
-    return`<div class="cc ${ccC}" id="cc-${sid}">
-      <div class="cc-acc"></div>
-      <div class="cc-hd">
-        <div class="cc-av ${avC}">${ini2(c.name)}</div>
-        <div class="cc-mid">
-          <div class="cc-nm">${E(c.name||'—')}${ln>1?`<span class="loan-num">Loan ${ln}</span>`:''}</div>
-          <div class="cc-id">${E(c.customerId)} · ${pt}</div>
+      let bdgC='bpn',bdgT='⏳ Pending';
+      if(dn){bdgC='bcp';bdgT='🏁 Completed'}
+      else if(ov){bdgC='bod';bdgT='🔴 Overdue'}
+      else if(tp){bdgC='bpd';bdgT='✅ Paid Today'}
+
+      const avC=dn?'av-b':ov?'av-r':tp?'av-g':'av-p';
+      const ccC=dn?'sb':ov?'sr':tp?'sg':'sp';
+      const sd=c.date?fmtD(c.date):(c.savedAt?fmtD(new Date(c.savedAt).toISOString().split('T')[0]):'—');
+      const ps=gPays(c.customerId).sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const pt=(c.paymentType||'monthly')==='weekly'?'W':'M';
+
+      return`<div class="cc ${ccC}" id="cc-${sid}">
+        <div class="cc-acc"></div>
+        <div class="cc-hd">
+          <div class="cc-av ${avC}">${ini2(c.name)}</div>
+          <div class="cc-mid">
+            <div class="cc-nm">${E(c.name||'—')}${ln>1?`<span class="loan-num">Loan ${ln}</span>`:''}</div>
+            <div class="cc-id">${E(c.customerId)} · ${pt}</div>
+          </div>
+          <span class="cc-bdg ${bdgC}">${bdgT}</span>
         </div>
-        <span class="cc-bdg ${bdgC}">${bdgT}</span>
-      </div>
-      <div class="cc-bd">
-        <div class="cc-sd">📅 ${sd}</div>
-        <div class="cc-row"><span class="cc-rl">💰 Paid</span><span class="cc-rv" style="color:#22d45e">${fmtM(paid)}</span></div>
-        <div class="cc-row"><span class="cc-rl">⏳ Pending</span><span class="cc-rv" style="color:${pn>0?'#fbbf24':'#22d45e'}">${fmtM(pn)}</span></div>
-        <div class="cc-row"><span class="cc-rl">📊 Total Payable</span><span class="cc-rv">${fmtM(t)}</span></div>
-        <div class="pbw"><div class="pb ${pbc}" style="width:${pct}%"></div></div>
-        <div class="pb-p" style="color:${pcc}">${pct}% complete</div>
-        ${ta>0?`<div class="cc-td">Today: <b>${fmtM(ta)}</b></div>`:''}
-      </div>
-      <div class="cacts" style="grid-template-columns:repeat(3,1fr)">
-        <button class="ca a-w" onclick="openPay('${E(c.customerId)}',${pn})">💰 Pay</button>
-        <button class="ca a-b" onclick="openDet('${E(c.customerId)}')">ℹ️ Info</button>
-        <button class="ca a-g" onclick="openCall('${E(c.name||'')}','${E(c.phone||'')}')">📞 Call</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:0 7px 6px">
-        ${dn
-          ?`<button class="ca a-p" onclick="openNewLoan('${E(c.customerId)}')">➕ New Loan</button>
-             <button class="ca a-x" onclick="tH('${sid}')">📋 Hist(${ps.length})</button>`
-          :`${ov
-              ?`<button class="ca a-g" onclick="rmOD('${E(c.customerId)}')">✅ Clear OD</button>`
-              :`<button class="ca a-r" onclick="openOD('${E(c.customerId)}')">🔴 Mark OD</button>`
-            }
-            <button class="ca a-x" onclick="tH('${sid}')">📋 Hist(${ps.length})</button>`
-        }
-      </div>
-      <div class="chist" id="h-${sid}">
-        <div class="ht">Payment History</div>
-        ${ps.length
-          ?ps.map(p=>`<div class="hi"><div><div class="hi-d">${fmtD(p.date)}</div><div class="hi-b">${p.timestamp?new Date(p.timestamp).toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit'}):''} · ${E(p.collectedBy||'—')}</div></div><div class="hi-r"><span class="hi-a">${fmtM(p.amount)}</span><button class="hi-del" onclick="openDelPay('${E(c.customerId)}','${E(p._key)}','${p.date}',${p.amount})">🗑</button></div></div>`).join('')
-          :'<div class="hempty">No payments yet</div>'
-        }
-        <button class="btn bx bsm bfull" style="margin-top:5px" onclick="tH('${sid}')">✕ Close</button>
-      </div>
-    </div>`;
-  }).join('');
+
+        <div class="cc-bd">
+          <div class="cc-sd">📅 ${sd}</div>
+          <div class="cc-row"><span class="cc-rl">💰 Paid</span><span class="cc-rv" style="color:#22d45e">${fmtM(paid)}</span></div>
+          <div class="cc-row"><span class="cc-rl">⏳ Pending</span><span class="cc-rv" style="color:${pn>0?'#fbbf24':'#22d45e'}">${fmtM(pn)}</span></div>
+          <div class="cc-row"><span class="cc-rl">📊 Total Payable</span><span class="cc-rv">${fmtM(t)}</span></div>
+          <div class="pbw"><div class="pb ${pbc}" style="width:${pct}%"></div></div>
+          <div class="pb-p" style="color:${pcc}">${pct}% complete</div>
+          ${ta>0?`<div class="cc-td">Today: <b>${fmtM(ta)}</b></div>`:''}
+        </div>
+
+        <div class="cacts" style="grid-template-columns:repeat(3,1fr)">
+          <button class="ca a-w" onclick="openPay('${E(c.customerId)}',${pn})">💰 Pay</button>
+          <button class="ca a-b" onclick="openDet('${E(c.customerId)}')">ℹ️ Info</button>
+          <button class="ca a-g" onclick="openCall(${JSON.stringify(c.name||'')},${JSON.stringify(c.phone||'')})">📞 Call</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:0 7px 6px">
+          ${dn
+            ?`<button class="ca a-p" onclick="openNewLoan('${E(c.customerId)}')">➕ New Loan</button>
+               <button class="ca a-x" onclick="tH('${sid}')">📋 Hist(${ps.length})</button>`
+            :`${ov
+                ?`<button class="ca a-g" onclick="rmOD('${E(c.customerId)}')">✅ Clear OD</button>`
+                :`<button class="ca a-r" onclick="openOD('${E(c.customerId)}')">🔴 Mark OD</button>`
+              }
+              <button class="ca a-x" onclick="tH('${sid}')">📋 Hist(${ps.length})</button>`
+          }
+        </div>
+
+        <div class="chist" id="h-${sid}">
+          <div class="ht">Payment History</div>
+          ${ps.length
+            ?ps.map(p=>`<div class="hi"><div><div class="hi-d">${fmtD(p.date)}</div><div class="hi-b">${p.timestamp?new Date(p.timestamp).toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit'}):''} · ${E(p.collectedBy||'—')}</div></div><div class="hi-r"><span class="hi-a">${fmtM(p.amount)}</span><button class="hi-del" onclick="openDelPay('${E(c.customerId)}','${E(p._key)}','${p.date}',${p.amount})">🗑</button></div></div>`).join('')
+            :'<div class="hempty">No payments yet</div>'
+          }
+          <button class="btn bx bsm bfull" style="margin-top:5px" onclick="tH('${sid}')">✕ Close</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(err){
+    console.error('renderCust() card render failed:', err);
+    grid.innerHTML=`<div class="nd" style="grid-column:1/-1"><div class="nd-i">⚠️</div><div class="nd-t">Render error — check console</div></div>`;
+  }
 
   renderPag('custPag',custPage,pages,p=>{
     custPage=p;
