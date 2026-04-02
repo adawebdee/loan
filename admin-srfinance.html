@@ -880,8 +880,9 @@ function renderCust(){
   });
 
   let filtered;
+  // ✅ Completed = (fully paid) OR (status field === "completed") so it matches Reports
   if(aFilter==='completed')
-    filtered = ws.filter(c => String(c.status||'').trim().toLowerCase() === 'completed'); // ✅ FIX
+    filtered=ws.filter(c=>c._dn===true || String(c.status||'').trim().toLowerCase()==='completed');
   else if(aFilter==='paid')
     filtered=ws.filter(c=>c._tp===true);
   else if(aFilter==='overdue')
