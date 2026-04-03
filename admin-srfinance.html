@@ -19,7 +19,7 @@
   --bdr:rgba(79,142,247,.13);--bdr2:rgba(255,255,255,.05);--sh:0 8px 32px rgba(0,0,0,.6);
 }
 
-/* ══ LIGHT THEME (fully fixed) ══ */
+/* ══ LIGHT THEME ══ */
 [data-theme="light"]{
   --bg:#f0f4ff;--s1:#ffffff;--s2:#f1f5fb;--s3:#e8eef7;
   --blue:#2563eb;--green:#16a34a;--red:#dc2626;--warn:#d97706;--purple:#7c3aed;--cyan:#0891b2;
@@ -189,7 +189,7 @@ header{position:sticky;top:0;z-index:80;background:rgba(4,8,15,.96);border-botto
 .dpi:focus{outline:none;border-color:#4f8ef7}
 .dpbtn{padding:5px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--s2);color:var(--t2);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit}
 .dpv{font-size:14px;font-weight:900;color:#4f8ef7;margin-left:auto}
-.cgrid{display:grid;grid-template-columns:1fr;gap:11px;margin-bottom:11px}
+.cgrid{display:grid;grid-template-columns:1fr;gap:7px;margin-bottom:10px}
 @media(min-width:700px){.cgrid{grid-template-columns:1fr 1fr}}
 .cbox{background:var(--s1);border:1px solid var(--bdr);border-radius:13px;padding:13px}
 .cbhd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;gap:6px;flex-wrap:wrap}
@@ -248,7 +248,7 @@ header{position:sticky;top:0;z-index:80;background:rgba(4,8,15,.96);border-botto
 .ft[data-f="all"].on{background:rgba(79,142,247,.11);border-color:rgba(79,142,247,.26);color:#4f8ef7}
 .ft[data-f="paid"].on{background:rgba(34,212,94,.08);border-color:rgba(34,212,94,.22);color:#22d45e}
 .ft[data-f="overdue"].on{background:rgba(240,82,82,.08);border-color:rgba(240,82,82,.22);color:#f05252}
-.ft[data-f="completed"].on{background:rgba(79,142,247,.1);border-color:rgba(79,142,247,.3);color:#4f8ef7}
+.ft[data-f="loancompleted"].on{background:rgba(79,142,247,.1);border-color:rgba(79,142,247,.3);color:#4f8ef7}
 .ft[data-f="notpaid"].on{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.22);color:#fbbf24}
 .tbar{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .swrap{position:relative;flex:1;min-width:130px}
@@ -474,7 +474,7 @@ header{position:sticky;top:0;z-index:80;background:rgba(4,8,15,.96);border-botto
     <div class="sc c2" onclick="goCust('paid')"><div class="sc-ico">✅</div><div class="sc-v" id="stPaid">0</div><div class="sc-l">Paid Today</div></div>
     <div class="sc c3" onclick="goCust('notpaid')"><div class="sc-ico">⏳</div><div class="sc-v" id="stNotPaid">0</div><div class="sc-l">Not Paid</div></div>
     <div class="sc c4" onclick="goCust('overdue')"><div class="sc-ico">🔴</div><div class="sc-v" id="stOverdue">0</div><div class="sc-l">Overdue</div></div>
-    <div class="sc c5" onclick="goCust('completed')"><div class="sc-ico">🏁</div><div class="sc-v" id="stCompleted">0</div><div class="sc-l">Completed</div></div>
+    <div class="sc c5" onclick="goCust('loancompleted')"><div class="sc-ico">🏁</div><div class="sc-v" id="stCompleted">0</div><div class="sc-l">Loan Completed</div></div>
     <div class="sc c6"><div class="sc-ico">💰</div><div class="sc-v" id="stTodayAmt">₹0</div><div class="sc-l">Today Collected</div></div>
   </div>
   <div class="sect">💵 Collection Summary</div>
@@ -505,7 +505,7 @@ header{position:sticky;top:0;z-index:80;background:rgba(4,8,15,.96);border-botto
       <button class="ft on" data-f="all" onclick="setF('all')">All</button>
       <button class="ft" data-f="paid" onclick="setF('paid')">✅ Paid Today</button>
       <button class="ft" data-f="overdue" onclick="setF('overdue')">🔴 Overdue</button>
-      <button class="ft" data-f="completed" onclick="setF('completed')">🏁 Completed</button>
+      <button class="ft" data-f="loancompleted" onclick="setF('loancompleted')">🏁 Loan Completed</button>
       <button class="ft" data-f="notpaid" onclick="setF('notpaid')">⏳ Not Paid</button>
     </div>
     <div class="tbar">
@@ -618,7 +618,7 @@ document.getElementById('sbNm').textContent=CU.name;
 document.getElementById('hdrSub').textContent=CU.name;
 function doLogout(){localStorage.removeItem('srUser');location.href='login.html'}
 
-/* ══ THEME — FIXED ══ */
+/* ══ THEME ══ */
 let isDark=true;
 function applyTheme(d){
   isDark=d;
@@ -736,15 +736,8 @@ function addEditPfx(){const v=(document.getElementById('ecPfxNew').value||'').to
 function tryClose(){if(loadDone.c&&loadDone.p&&loadDone.x&&!dataReady){dataReady=true;advLD(100,'Ready!');setTimeout(()=>{closeLd();uAll()},300)}}
 db.ref('settings/prefixes').on('value',s=>{try{const v=s.val();PX=Array.isArray(v)&&v.length?v:[]}catch(e){PX=[]}if(dataReady)uAll()});
 
-/* ── CHANGE 2: log unique status values once after customers load ── */
 db.ref('customers').on('value',s=>{
   try{AC=s.val()||{}}catch(e){AC={}}
-  const uniqueStatuses=[...new Set(
-    Object.values(AC)
-      .map(c=>String(c.status||'').trim().toLowerCase())
-      .filter(Boolean)
-  )];
-  console.log('[SR Finance] Unique customer status values:',uniqueStatuses);
   advLD(50,'Customers...');loadDone.c=true;tryClose();if(dataReady)uAll()
 },()=>{AC={};loadDone.c=true;tryClose()});
 
@@ -776,7 +769,6 @@ function updateStats(){
   let pd=0,np=0,od=0,cp=0;
   cs.forEach(c=>{
     const{dn,ov,tp}=custStatus(c);
-    /* count as completed if calculated done OR status field === 'completed' */
     const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
     if(isCompleted)cp++;
     else if(ov)od++;
@@ -829,17 +821,26 @@ function bPie(){
     const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
     if(isCompleted)cp++;else if(ov)od++;else if(tp)pd++;else np++;
   });
-  const labels=['Paid Today','Not Paid','Overdue','Completed'],data=[pd,np,od,cp],colors=['#22d45e','#fbbf24','#f05252','#4f8ef7'];
+  const labels=['Paid Today','Not Paid','Overdue','Loan Completed'],data=[pd,np,od,cp],colors=['#22d45e','#fbbf24','#f05252','#4f8ef7'];
   dCH('pie');const ctx=document.getElementById('cPie').getContext('2d');
   CH['pie']=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:2,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>` ${c.label}: ${c.raw} (${Math.round(c.raw/(data.reduce((a,b)=>a+b,0)||1)*100)}%)`}}}}});
   document.getElementById('pieLeg').innerHTML=labels.map((l,i)=>`<div class="pl-item"><div class="pl-dot" style="background:${colors[i]}"></div><span class="pl-label">${l}</span><span class="pl-val" style="color:${colors[i]}">${data[i]}</span></div>`).join('')
 }
-function bExpTrend(){const mode=document.getElementById('expMode').value;const mp=document.getElementById('expMonthPick');mp.style.display=mode==='month'?'inline-block':'none';let labels=[],data=[];if(mode==='month'){const v=mp.value;if(!v){document.getElementById('expTrendSub').textContent='Select month';return}const[y,m]=v.split('-').map(Number);document.getElementById('expTrendSub').textContent=`${MO[m-1]} ${y}`;const days=new Date(y,m,0).getDate();for(let i=1;i<=days;i++){const iso=`${y}-${String(m).padStart(2,'0')}-${String(i).padStart(2,'0')}`;labels.push(`${i}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}else{const days=parseInt(mode)||28;document.getElementById('expTrendSub').textContent=`Last ${days} days`;const now=getIST();for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const iso=fmtISO(d);labels.push(`${d.getDate()} ${MO[d.getMonth()]}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}const total=data.reduce((a,b)=>a+b,0),avg=data.filter(v=>v>0).length?Math.round(total/data.filter(v=>v>0).length):0,mx=Math.max(...data,0);document.getElementById('expStatRow').innerHTML=`<div class="exp-si">Total:<b>${fmtM(total)}</b></div><div class="exp-si">Avg:<b>${fmtM(avg)}</b></div><div class="exp-si">Peak:<b>${fmtM(mx)}</b></div>`;dCH('expt');const ctx=document.getElementById('cExpTrend').getContext('2d');const g=ctx.createLinearGradient(0,0,0,240);g.addColorStop(0,'rgba(240,82,82,.28)');g.addColorStop(1,'rgba(240,82,82,.02)');CH['expt']=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Expenses',data,borderColor:'#f05252',backgroundColor:g,borderWidth:2,pointRadius:2,pointBackgroundColor:'#f05252',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' ₹'+Number(c.raw).toLocaleString('en-IN')}}},scores:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},maxTicksLimit:10}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},callback:v=>'₹'+Number(v).toLocaleString('en-IN')},beginAtZero:true}}}})}
+function bExpTrend(){const mode=document.getElementById('expMode').value;const mp=document.getElementById('expMonthPick');mp.style.display=mode==='month'?'inline-block':'none';let labels=[],data=[];if(mode==='month'){const v=mp.value;if(!v){document.getElementById('expTrendSub').textContent='Select month';return}const[y,m]=v.split('-').map(Number);document.getElementById('expTrendSub').textContent=`${MO[m-1]} ${y}`;const days=new Date(y,m,0).getDate();for(let i=1;i<=days;i++){const iso=`${y}-${String(m).padStart(2,'0')}-${String(i).padStart(2,'0')}`;labels.push(`${i}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}else{const days=parseInt(mode)||28;document.getElementById('expTrendSub').textContent=`Last ${days} days`;const now=getIST();for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const iso=fmtISO(d);labels.push(`${d.getDate()} ${MO[d.getMonth()]}`);data.push(EX.filter(x=>x.date===iso).reduce((t,x)=>t+(Number(x.amount)||0),0))}}const total=data.reduce((a,b)=>a+b,0),avg=data.filter(v=>v>0).length?Math.round(total/data.filter(v=>v>0).length):0,mx=Math.max(...data,0);document.getElementById('expStatRow').innerHTML=`<div class="exp-si">Total:<b>${fmtM(total)}</b></div><div class="exp-si">Avg:<b>${fmtM(avg)}</b></div><div class="exp-si">Peak:<b>${fmtM(mx)}</b></div>`;dCH('expt');const ctx=document.getElementById('cExpTrend').getContext('2d');const g=ctx.createLinearGradient(0,0,0,240);g.addColorStop(0,'rgba(240,82,82,.28)');g.addColorStop(1,'rgba(240,82,82,.02)');CH['expt']=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Expenses',data,borderColor:'#f05252',backgroundColor:g,borderWidth:2,pointRadius:2,pointBackgroundColor:'#f05252',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' ₹'+Number(c.raw).toLocaleString('en-IN')}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},maxTicksLimit:10}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#7a8fa6',font:{size:8},callback:v=>'₹'+Number(v).toLocaleString('en-IN')},beginAtZero:true}}}})}
 function bLoc(){const{s,e}=getRng(document.getElementById('locDD').value);const pays=paysInRng(s,e);const locs=PX.length?PX:['ALL'];const data=locs.map(p=>pays.filter(pay=>{if(!PX.length)return true;const c=getCust(pay.customerId);return c&&(c.customerId||'').split('-')[0]===p}).reduce((t,pay)=>t+(Number(pay.amount)||0),0));dCH('loc');const ctx=document.getElementById('cLoc').getContext('2d');CH['loc']=new Chart(ctx,{type:'bar',data:{labels:locs,datasets:[{label:'Collected',data,backgroundColor:locs.map((_,i)=>BCOLS[i%BCOLS.length]+'88'),borderColor:locs.map((_,i)=>BCOLS[i%BCOLS.length]),borderWidth:2,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>' ₹'+Number(c.raw).toLocaleString('en-IN')}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{size:8},callback:v=>'₹'+Number(v).toLocaleString('en-IN')}},y:{grid:{display:false},ticks:{color:'#b8c5d8',font:{size:9,weight:'700'}}}}}})}
 function bLocStat(){const{s,e}=getRng(document.getElementById('locStatDD').value);const locs=PX.length?PX:['ALL'];const pd=[],nd=[];locs.forEach(p=>{let pc=0,nc=0;Object.values(AC).forEach(c=>{if(PX.length&&(c.customerId||'').split('-')[0]!==p)return;const{dn,ov,tp}=custStatus(c);if(dn)return;tp?pc++:nc++;});pd.push(pc);nd.push(nc);});dCH('ls');const ctx=document.getElementById('cLocStat').getContext('2d');CH['ls']=new Chart(ctx,{type:'bar',data:{labels:locs,datasets:[{label:'Paid',data:pd,backgroundColor:'rgba(34,212,94,.4)',borderColor:'#22d45e',borderWidth:2,borderRadius:4},{label:'Not Paid',data:nd,backgroundColor:'rgba(240,82,82,.35)',borderColor:'#f05252',borderWidth:2,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#b8c5d8',font:{size:9,weight:'700'},boxWidth:9},position:'top'},tooltip:{...TT}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#b8c5d8',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5568',font:{size:8},stepSize:1}}}}})}
 
 /* ══ NAV ══ */
-function goCust(f){aFilter=f;aLoc='';custPage=1;switchTab('customers');document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));document.querySelectorAll('.ntab')[1].classList.add('on');document.querySelectorAll('.ft').forEach(t=>t.classList.toggle('on',t.dataset.f===f));renderLocTabs();renderCust();window.scrollTo({top:0,behavior:'smooth'})}
+function goCust(f){
+  if(f==='completed')f='loancompleted';
+  aFilter=f;aLoc='';custPage=1;
+  switchTab('customers');
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.ntab')[1].classList.add('on');
+  document.querySelectorAll('.ft').forEach(t=>t.classList.toggle('on',t.dataset.f===f));
+  renderLocTabs();renderCust();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
 /* ══ LOC TABS ══ */
 function renderLocTabs(){
@@ -880,8 +881,7 @@ function renderCust(){
   });
 
   let filtered;
-  // ✅ Completed: show both “fully paid” (like Reports) AND status field === completed
-  if(aFilter==='completed'){
+  if(aFilter==='loancompleted'){
     filtered=ws.filter(c=>
       c._dn===true || String(c.status||'').trim().toLowerCase()==='completed'
     );
@@ -897,8 +897,8 @@ function renderCust(){
 
   if(q){
     filtered=filtered.filter(c=>
-      (c.name||'').toLowerCase().includes(q) ||
-      (c.customerId||'').toLowerCase().includes(q) ||
+      (c.name||'').toLowerCase().includes(q)||
+      (c.customerId||'').toLowerCase().includes(q)||
       (c.phone||'').includes(q)
     );
   }
@@ -906,7 +906,7 @@ function renderCust(){
   filtered.sort((a,b)=>{
     if(a._dn&&!b._dn) return 1;
     if(!a._dn&&b._dn) return -1;
-    return (parseInt((b.customerId||'').split('-').pop())||0) - (parseInt((a.customerId||'').split('-').pop())||0);
+    return (parseInt((b.customerId||'').split('-').pop())||0)-(parseInt((a.customerId||'').split('-').pop())||0);
   });
 
   const total=filtered.length;
@@ -926,9 +926,8 @@ function renderCust(){
   lc.style.display='block';
   lc.innerHTML=`Showing <b>${start+1}–${Math.min(start+PP,total)}</b> of <b>${total}</b>${aFilter!=='all'?' ('+aFilter+')':''}`;
 
-  // ✅ Render cards (with safe openCall to avoid broken HTML)
   try{
-    grid.innerHTML = slice.map(c=>{
+    grid.innerHTML=slice.map(c=>{
       const{_paid:paid,_t:t,_pn:pn,_pct:pct,_dn:dn,_ov:ov,_tp:tp,_ta:ta}=c;
       const sid=SI(c.customerId);
       const pcc=pct>=100?'#22d45e':pct>=50?'#fbbf24':'#f05252';
@@ -936,7 +935,7 @@ function renderCust(){
       const ln=c.loanNumber||1;
 
       let bdgC='bpn',bdgT='⏳ Pending';
-      if(dn){bdgC='bcp';bdgT='🏁 Completed'}
+      if(dn){bdgC='bcp';bdgT='🏁 Loan Completed'}
       else if(ov){bdgC='bod';bdgT='🔴 Overdue'}
       else if(tp){bdgC='bpd';bdgT='✅ Paid Today'}
 
@@ -975,7 +974,7 @@ function renderCust(){
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:0 7px 6px">
           ${dn
-            ?`<button class="ca a-p" onclick="openNewLoan('${E(c.customerId)}')">➕ New Loan</button>
+            ?`<button class="ca a-p" onclick="openNewLoan('${E(c.customerId)}')">➕ Add New Loan</button>
                <button class="ca a-x" onclick="tH('${sid}')">📋 Hist(${ps.length})</button>`
             :`${ov
                 ?`<button class="ca a-g" onclick="rmOD('${E(c.customerId)}')">✅ Clear OD</button>`
@@ -996,7 +995,7 @@ function renderCust(){
       </div>`;
     }).join('');
   }catch(err){
-    console.error('renderCust() card render failed:', err);
+    console.error('renderCust() card render failed:',err);
     grid.innerHTML=`<div class="nd" style="grid-column:1/-1"><div class="nd-i">⚠️</div><div class="nd-t">Render error — check console</div></div>`;
   }
 
@@ -1027,11 +1026,14 @@ function renderPag(cid,cur,tot,cb){
 /* ══ NEW LOAN ══ */
 function openNewLoan(id){
   nlCid=id;const c=getCust(id);if(!c)return;
-  document.getElementById('nlInfo').innerHTML=`<b style="color:#4f8ef7">${E(c.name||id)}</b> · ${E(id)} · Previous loans: <b style="color:#a78bfa">${c.loanNumber||1}</b>`;
-  document.getElementById('nlAmt').value='';document.getElementById('nlIR').value='';
-  document.getElementById('nlInst').value='';document.getElementById('nlPT').value='monthly';
+  document.getElementById('nlInfo').innerHTML=`<b style="color:#4f8ef7">${E(c.name||id)}</b> · ${E(id)} · Previous loans: <b style="color:#a78bfa">${c.loanNumber||1}</b><br><span style="font-size:9px;color:var(--t3)">A new record with a new ID will be created. All personal details will be copied.</span>`;
+  document.getElementById('nlAmt').value='';
+  document.getElementById('nlIR').value='';
+  document.getElementById('nlInst').value='';
+  document.getElementById('nlPT').value='monthly';
   document.getElementById('nlCalc').innerHTML='<div style="font-size:10px;color:var(--t4)">Enter amount and interest to preview</div>';
-  oM('mNewLoan');setTimeout(()=>document.getElementById('nlAmt').focus(),180);
+  oM('mNewLoan');
+  setTimeout(()=>document.getElementById('nlAmt').focus(),180);
 }
 function calcNL(){
   const la=Number(document.getElementById('nlAmt').value)||0;
@@ -1058,8 +1060,53 @@ function saveNewLoan(){
   const c=getCust(nlCid);if(!c)return;
   const cm=Math.floor(la/5000)*100,rc=Math.max(0,la-cm),intA=(la*ir)/100,tp=la+intA,ni=ia>0?Math.ceil(tp/ia):0;
   const newLoanNum=(c.loanNumber||1)+1;
-  db.ref('customers/'+SK(nlCid)).update({loanAmount:la,interestRate:ir,installmentAmount:ia,paymentType:pt,commissionFee:cm,customerReceives:rc,interestAmount:intA,totalPayable:tp,numberOfInstallments:ni,loanNumber:newLoanNum,isOverdue:false,overdueAt:null,loanStartDate:todayIST(),loanUpdatedAt:Date.now(),loanUpdatedBy:CU.name})
-  .then(()=>{cM('mNewLoan');nlCid=null;sT(`✅ Loan ${newLoanNum} created!`)}).catch(()=>sT('⚠️ Failed'));
+
+  // Build new ID: same prefix, next available number
+  const pfx=(nlCid.split('-')[0])||'SR';
+  const existing=Object.values(AC).map(x=>{
+    const id=x.customerId||'';
+    if(!id.startsWith(pfx+'-'))return 0;
+    return parseInt(id.replace(pfx+'-',''))||0;
+  });
+  const nextNum=(existing.length?Math.max(...existing):0)+1;
+  const newId=`${pfx}-${String(nextNum).padStart(3,'0')}`;
+
+  // New customer record: copy all personal details, new ID, new loan details, fresh start
+  const newRecord={
+    customerId:newId,
+    name:c.name||'',
+    parentName:c.parentName||'',
+    phone:c.phone||'',
+    aadhar:c.aadhar||'',
+    address:c.address||'',
+    state:c.state||'',
+    city:c.city||'',
+    loanAmount:la,
+    interestRate:ir,
+    installmentAmount:ia,
+    paymentType:pt,
+    commissionFee:cm,
+    customerReceives:rc,
+    interestAmount:intA,
+    totalPayable:tp,
+    numberOfInstallments:ni,
+    loanNumber:newLoanNum,
+    isOverdue:false,
+    overdueAt:null,
+    loanStartDate:todayIST(),
+    date:todayIST(),
+    savedAt:Date.now(),
+    loanUpdatedAt:Date.now(),
+    loanUpdatedBy:CU.name,
+    previousLoanId:nlCid
+  };
+
+  db.ref('customers/'+SK(newId)).set(newRecord)
+    .then(()=>{
+      cM('mNewLoan');
+      nlCid=null;
+      sT(`✅ New loan created! ID: ${newId}`);
+    }).catch(()=>sT('⚠️ Failed'));
 }
 
 /* ══ IMPORT ══ */
@@ -1288,7 +1335,7 @@ function buildReport(){
     <div class="sc c2"><div class="sc-ico">✅</div><div class="sc-v">${paidC}</div><div class="sc-l">Paid Today</div></div>
     <div class="sc c3"><div class="sc-ico">⏳</div><div class="sc-v">${npC}</div><div class="sc-l">Not Paid</div></div>
     <div class="sc c4"><div class="sc-ico">🔴</div><div class="sc-v">${odC}</div><div class="sc-l">Overdue</div></div>
-    <div class="sc c5"><div class="sc-ico">🏁</div><div class="sc-v">${cpC}</div><div class="sc-l">Completed</div></div>`;
+    <div class="sc c5"><div class="sc-ico">🏁</div><div class="sc-v">${cpC}</div><div class="sc-l">Loan Completed</div></div>`;
   const byUser={};pays.forEach(p=>{const u=p.collectedBy||'Unknown';if(!byUser[u])byUser[u]={n:0,t:0};byUser[u].n++;byUser[u].t+=Number(p.amount)||0});
   document.getElementById('rUserCards').innerHTML=Object.entries(byUser).sort((a,b)=>b[1].t-a[1].t).map(([u,d],i)=>`<div class="urc"><div class="urc-av" style="background:linear-gradient(135deg,${BCOLS[i%BCOLS.length]},${BCOLS[(i+1)%BCOLS.length]})">${ini2(u)}</div><div class="urc-nm">${E(u)}</div><div class="urc-cnt">${d.n} payments</div><div class="urc-amt">${fmtM(d.t)}</div></div>`).join('')||'<div style="font-size:10px;color:var(--t4);grid-column:1/-1;text-align:center;padding:11px">No collections</div>';
   document.getElementById('rCustCount').textContent=`(${cs.length})`;
@@ -1303,7 +1350,7 @@ function buildRptTable(cs){
     const{paid,t,pn,pct,dn,ov,tp}=custStatus(c);
     const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
     let st='Pending',sc='#fbbf24';
-    if(isCompleted){st='Completed';sc='#4f8ef7'}else if(ov){st='Overdue';sc='#f05252'}else if(tp){st='Paid';sc='#22d45e'}
+    if(isCompleted){st='Loan Completed';sc='#4f8ef7'}else if(ov){st='Overdue';sc='#f05252'}else if(tp){st='Paid';sc='#22d45e'}
     return`<tr>
       <td style="color:var(--t4);font-size:9px;text-align:center">${start+i+1}</td>
       <td style="color:#4f8ef7;font-weight:800">${E(c.customerId)}</td>
@@ -1330,7 +1377,7 @@ function exportCSV(){
   const rows=cs.map(c=>{
     const{paid,t,pn,pct,dn,ov,tp}=custStatus(c);
     const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
-    let st='Pending';if(isCompleted)st='Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
+    let st='Pending';if(isCompleted)st='Loan Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
     return[c.customerId||'',c.name||'',c.parentName||'',c.phone||'',c.aadhar||'',(c.address||'').replace(/,/g,';'),c.state||'',c.city||'',c.loanAmount||0,c.interestRate||0,t,c.installmentAmount||0,c.paymentType||'monthly',paid,pn,pct,st,c.date||'',lastPD(c.customerId)||'',lastCB(c.customerId),c.loanNumber||1]
       .map(val=>'"'+String(val).replace(/"/g,'""')+'"').join(',');
   });
@@ -1344,7 +1391,7 @@ function downloadCSVReport(){
   const rows=cs.sort((a,b)=>(parseInt((b.customerId||'').split('-').pop())||0)-(parseInt((a.customerId||'').split('-').pop())||0)).map((c,i)=>{
     const{paid,t,pn,pct,dn,ov,tp}=custStatus(c);
     const isCompleted=dn||String(c.status||'').trim().toLowerCase()==='completed';
-    let st='Pending';if(isCompleted)st='Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
+    let st='Pending';if(isCompleted)st='Loan Completed';else if(ov)st='Overdue';else if(tp)st='Paid';
     return[i+1,c.customerId||'',c.name||'',c.phone||'',c.paymentType||'monthly',c.loanAmount||0,t,paid,pn,pct,st,c.date||'',lastPD(c.customerId)||'',lastCB(c.customerId),c.loanNumber||1]
       .map(val=>'"'+String(val).replace(/"/g,'""')+'"').join(',');
   });
